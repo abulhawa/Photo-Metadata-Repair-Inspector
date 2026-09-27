@@ -1,4 +1,4 @@
-# Privacy information — Photo Metadata Repair Inspector
+# Privacy information â€” Photo Metadata Repair Inspector
 
 Effective date: 27 September 2026. Publisher: QortxAI.
 
@@ -31,3 +31,15 @@ where possible.
 
 Questions can be submitted through the project's
 [support tracker](https://github.com/abulhawa/Windows-Photo-Repair-Inspector/issues).
+
+## Public policy and website visitors
+
+Public policy: https://qortxai.com/projects/photo-metadata-repair-inspector/privacy/.
+For privacy questions, email qortxai@outlook.com. Information you choose to send
+by email is processed to respond to your request through the email service.
+
+The local-processing statements above describe the desktop application. The
+website is hosted by Vercel and loads its font stylesheet from Google Fonts;
+visiting it involves requests to those services. Other pages on qortxai.com,
+including the homepage, include Vercel Web Analytics. Those website services are
+separate from the app and do not receive your photo collection through the app.

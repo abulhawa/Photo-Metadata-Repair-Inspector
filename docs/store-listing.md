@@ -50,8 +50,9 @@ review filters, batch repair previews, optional backups and local repair logs.
 ## Support and privacy fields
 
 Support URL: https://github.com/abulhawa/Windows-Photo-Repair-Inspector/issues
-Privacy text: docs/privacy.md. Publish a stable public URL before using the text
-as the Partner Center privacy policy link. Do not reference the unmerged branch.
+Privacy policy URL: https://qortxai.com/projects/photo-metadata-repair-inspector/privacy/
+Privacy source: docs/privacy.md; the public page also explains the website’s
+separate hosting/font/analytics services.
 Do not add personal photos or sensitive paths to public support tickets.
 
 ## Screenshot capture plan
@@ -64,6 +65,6 @@ paths or photos. Capture actual app UI; do not substitute mockups.
 3. Confirmation: proposed before/after dates and Apply count.
 4. Results: refreshed Library/Review and the local repair log.
 
-Screenshots and final artwork remain outstanding. Verify image requirements in
+Artwork is owner-approved. Screenshots remain outstanding. Verify image requirements in
 Partner Center before uploading. See the official
 [submission guide](https://learn.microsoft.com/en-us/windows/apps/publish/publish-your-app/msix/create-app-submission).

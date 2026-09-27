@@ -21,7 +21,7 @@ desktop capability. Generated artifacts and SHA-256 report are under
 `.artifacts/store-release`. Build success is not installation/certification evidence.
 Never upload signing keys or certificates to GitHub.
 
-## Clean-profile checks — still required
+## Clean-profile checks â€” still required
 
 Use a disposable Windows user/VM with Developer Mode or an appropriate test-signing
 setup. Unsigned MSIX files are for Store upload and cannot be treated as ordinarily
@@ -59,8 +59,8 @@ choose a method and click Review changes. Changes require explicit Apply
 confirmation. Backups are enabled by default. Taken At writes are JPEG-only;
 other supported media types remain inspectable.
 
-The package targets Windows.Desktop and x64. Final icons and screenshots must
-replace development placeholders before submission. Review Partner Center's
+The package targets Windows.Desktop and x64. The app icons are owner-approved. Actual packaged-app screenshots remain
+required before submission. Review Partner Center's
 current capability questions and certification feedback before submitting.
 
 The StoreUpload target currently fails locally on missing symbol tooling and

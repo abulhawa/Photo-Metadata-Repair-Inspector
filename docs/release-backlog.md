@@ -32,7 +32,7 @@ and real-photo checks. The table UI was owner-approved before integration.
 ## M4 Store preparation
 
 - [x] Replace template artwork with the owner-requested photo-and-clock icon and tile assets.
-  Final owner visual acceptance remains pending.
+  Owner approved the artwork on 2026-09-27.
 - [x] Prepare candidate 1.0.0.0 and verify built identity against store-identity.md.
 - [x] Build direct unsigned x64 MSIX and validate manifest/hash.
   Declared minimum is Windows 10 build 17763; actual oldest-OS testing remains pending.
@@ -56,7 +56,8 @@ writes remain separate work after native Windows stability.
 ## Prepared materials
 
 - Free listing and screenshot plan: [store-listing.md](store-listing.md).
-- Privacy text to publish at a stable URL: [privacy.md](privacy.md).
+- Privacy policy: https://qortxai.com/projects/photo-metadata-repair-inspector/privacy/
+  ([local source](privacy.md)).
 - Packaging, clean-profile checklist and reviewer notes: [store-validation.md](store-validation.md).
 - Reproducible package/report generation: `scripts/build-store-package.ps1`.
 - Source artwork and reproducible size variants: `artwork/` and `scripts/build-icon-assets.ps1`.
