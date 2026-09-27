@@ -34,13 +34,29 @@ public sealed class InspectionViewModel(Action<Action> dispatch, MediaScanner? s
     public string View { get; set; } = "Library";
     public string? SortColumn { get; private set; }
     public bool Descending { get; private set; }
-    public string Status { get; private set; } = "Choose a folder to inspect";
+    public string Status { get; private set; } = "";
+    public bool HasScannedFolder { get; private set; }
+    public string? SelectedFolder { get; private set; }
+    public string SelectedFolderDisplay => SelectedFolder ?? "No folder selected";
+    public bool IsChoosingFolder { get; private set; }
+
     public string Summary => $"{Rows.Count} shown · {records.Count} media files · {records.Count(r => r.Issues.Count > 0)} to review";
     public string SelectionSummary => $"{Selection.Selected.Count} selected · Backups {(CreateBackup ? "on" : "off")}";
     public string Log { get; private set; } = "No folder loaded.";
     public bool IsScanning => cancellation is not null;
     public bool IsApplying => applying;
-    public bool CanScan => !IsScanning && !IsApplying;
+    public bool CanSelectFolder => !IsScanning && !IsApplying && !IsChoosingFolder;
+    public bool CanScan => CanSelectFolder && SelectedFolder is not null;
+    public void SetFolderPickerOpen(bool open) { IsChoosingFolder = open; Notify(); }
+    public void SelectFolder(string root)
+    {
+        if (IsScanning || IsApplying) return;
+        SelectedFolder = Path.GetFullPath(root);
+        if (!HasScannedFolder) Status = "Ready to scan.";
+        Notify();
+    }
+    public Task ScanSelectedFolderAsync() => CanScan ? ScanAsync(SelectedFolder!) : Task.CompletedTask;
+
     public bool CanReviewChanges => rootPath is not null && !IsScanning && !IsApplying && Selection.Selected.Count > 0;
     public double Completed { get; private set; }
     public double Total { get; private set; } = 1;
@@ -53,6 +69,7 @@ public sealed class InspectionViewModel(Action<Action> dispatch, MediaScanner? s
     public async Task ScanAsync(string root)
     {
         if (IsScanning || IsApplying) return;
+        SelectedFolder = Path.GetFullPath(root);
         using var source = new CancellationTokenSource();
         cancellation = source;
         int current = ++generation;
@@ -69,6 +86,7 @@ public sealed class InspectionViewModel(Action<Action> dispatch, MediaScanner? s
             if (!source.IsCancellationRequested || scanned.Count > 0)
             {
                 records = scanned;
+                HasScannedFolder = true;
                 rootPath = Path.GetFullPath(root);
                 Refresh();
                 await LoadLogAsync();
@@ -94,7 +112,20 @@ public sealed class InspectionViewModel(Action<Action> dispatch, MediaScanner? s
         Notify();
     }
 
-    public void Sort(string column) { Descending = SortColumn == column && !Descending; SortColumn = column; Refresh(false); }
+    public void Sort(string column)
+    {
+        Descending = SortColumn == column && !Descending;
+        SortColumn = column;
+        var ordered = (Descending
+            ? Rows.OrderByDescending(row => LibraryQuery.SortValue(row.Record, column))
+            : Rows.OrderBy(row => LibraryQuery.SortValue(row.Record, column))).ToArray();
+        // A Clear/Reset temporarily removes the entire table and resets its
+        // ScrollViewer. Move existing rows so viewport and checkbox state survive.
+        for (int index = 0; index < ordered.Length; index++)
+            if (!ReferenceEquals(Rows[index], ordered[index]))
+                Rows.Move(Rows.IndexOf(ordered[index]), index);
+        Notify();
+    }
     public void Click(MediaRow row, bool ctrl, bool shift, bool checkbox) { Selection.Click(Rows.Select(r => r.Record.Path).ToArray(), row.Record.Path, ctrl, shift, checkbox); SyncSelection(); }
     public void SelectAll() { Selection.SelectAll(Rows.Select(r => r.Record.Path).ToArray()); SyncSelection(); }
     public void ClearSelection() { Selection.Clear(); SyncSelection(); }
@@ -118,7 +149,7 @@ public sealed class InspectionViewModel(Action<Action> dispatch, MediaScanner? s
         RepairMethod method = RepairPlanner.FindMethod(SelectedRepairMethodId);
         var selected = records.Where(record => Selection.Selected.Contains(record.Path)).ToArray();
         if (selected.Length == 0) throw new InvalidOperationException("Select at least one file first.");
-        return RepairPlanner.Preview(selected, method);
+        return RepairPlanner.Preview(selected, method) with { CreateBackup = CreateBackup, ScanRoot = rootPath };
     }
 
     public async Task<IReadOnlyList<RepairExecutionResult>> ApplyRepairAsync(RepairPreview preview)
@@ -129,7 +160,9 @@ public sealed class InspectionViewModel(Action<Action> dispatch, MediaScanner? s
 
         // Freeze the safety choice associated with the confirmation that just
         // occurred. Async execution must not observe a later UI toggle change.
-        bool createBackup = CreateBackup;
+        if (!string.Equals(preview.ScanRoot, rootPath, StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("The scanned folder changed since the preview. Review changes again.");
+        bool createBackup = preview.CreateBackup;
         applying = true;
         Status = $"Applying {preview.ApplicableCount} repair{(preview.ApplicableCount == 1 ? "" : "s")}…";
         Notify();

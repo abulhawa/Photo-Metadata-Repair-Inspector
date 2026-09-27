@@ -17,6 +17,8 @@ public sealed record RepairPreview(
     IReadOnlyList<RepairPlanItem> Items,
     IReadOnlyList<RepairPlanItem> Examples)
 {
+    public bool CreateBackup { get; init; } = true;
+    public string? ScanRoot { get; init; }
     public int SelectedCount => Items.Count;
     public int ApplicableCount => Items.Count(item => item.Applicable);
     public int SkippedCount => SelectedCount - ApplicableCount;

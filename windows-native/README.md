@@ -21,7 +21,7 @@ dotnet test windows-native/tests/PhotoRepair.Windows.Tests -c Release --no-build
 uv run --locked --group dev pytest
 uv run --locked python -m compileall -q photo_repair main.py
 
-# Create an unsigned MSIX; production signing and Store submission belong to M4.
+# Create an unsigned MSIX; Store submission belongs to M4.
 dotnet build windows-native/src/PhotoRepair.App -c Release -p:Platform=x64 -p:GenerateAppxPackageOnBuild=true -p:AppxPackageSigningEnabled=false
 
 # Register the built package, then launch Photo Metadata Repair Inspector from Start.
@@ -157,7 +157,24 @@ log, and post-repair Library/Review behavior.
 ## M4 remains separate
 
 Store identity is already populated from the Partner Center reservation and the
-Release configuration can build an unsigned MSIX. Final Store artwork, production
-signing, clean-profile install/uninstall validation, and Microsoft Store submission
+Release configuration can build an unsigned MSIX. Final Store artwork, submission packaging,
+clean-profile install/update/uninstall validation, and Microsoft Store submission
 remain M4 work. The unsigned MSIX build can warn when optional `mspdbcmf.exe`
 symbol-package tooling is absent; that warning does not prevent MSIX creation.
+## Integrated UI verification (2026-09-27)
+
+The owner-approved table UI and explicit folder-selection/scan workflow are now
+integrated with M3 repair execution. A single core planner supplies confirmation
+and execution. Previews capture backup preference and scanned root; choosing a
+new folder keeps repairs associated with the loaded results, while scanning a
+new root invalidates the old preview. Cancel is the default confirmation action.
+
+Local integration verification: 34 core tests, 30 Windows tests and 46 Python
+tests passed. The Windows suite includes actual fixture repair with backups off,
+Library/Review refresh, captured backup preference and folder-root confinement.
+The access-time preservation baseline is measured after preview metadata reads,
+immediately before Apply, so those reads cannot invalidate the assertion.
+
+Remaining merge gates and Store preparation are tracked in
+[release-backlog.md](../docs/release-backlog.md). Manual packaged-app repair
+validation remains outstanding; this integration does not claim that check passed.

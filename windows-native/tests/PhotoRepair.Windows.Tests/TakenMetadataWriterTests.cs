@@ -23,10 +23,11 @@ public sealed class TakenMetadataWriterTests : IDisposable
         byte[] beforeScanData = FromStartOfScan(File.ReadAllBytes(path));
         DateTime created = File.GetCreationTimeUtc(path);
         DateTime modified = File.GetLastWriteTimeUtc(path);
-        DateTime accessed = File.GetLastAccessTimeUtc(path);
 
         var plan = RepairPlanner.Plan(reader.ReadFile(path), RepairPlanner.FindMethod("taken:created"));
         Assert.True(plan.Applicable);
+        // Preview reads may update Accessed; preservation starts at Apply.
+        DateTime accessed = File.GetLastAccessTimeUtc(path);
 
         var result = new RepairService(root, reader).Apply(plan, createBackup: false);
 
