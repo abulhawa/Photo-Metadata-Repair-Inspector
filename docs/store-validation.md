@@ -66,3 +66,9 @@ current capability questions and certification feedback before submitting.
 The StoreUpload target currently fails locally on missing symbol tooling and
 System.Security.Permissions. The direct MSIX build avoids that optional container
 path. Upload the MSIX reported by the script, not artifacts from a failed build.
+
+## Recorded local results
+
+See [release-validation-results.md](release-validation-results.md): the local
+certification kit passed candidate 1.0.0.0. Unsigned installation was refused
+with 0x80073D2C; clean-profile lifecycle validation remains outstanding.

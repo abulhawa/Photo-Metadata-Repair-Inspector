@@ -37,7 +37,8 @@ and real-photo checks. The table UI was owner-approved before integration.
 - [x] Build direct unsigned x64 MSIX and validate manifest/hash.
   Declared minimum is Windows 10 build 17763; actual oldest-OS testing remains pending.
 - [ ] Test clean-profile install, packaged launch, folder access, update and uninstall.
-- [ ] Perform available local certification checks and resolve actionable findings.
+- [x] Local Windows App Certification Kit: PASS for 1.0.0.0 on build 26200.
+  Microsoft Store certification remains pending.
 - [ ] Prepare screenshots, description, features, category, age ratings, pricing,
   availability, support URL/contact and applicable privacy disclosures.
 - [ ] Complete Partner Center capability declarations, including runFullTrust,
@@ -61,3 +62,6 @@ writes remain separate work after native Windows stability.
 - Packaging, clean-profile checklist and reviewer notes: [store-validation.md](store-validation.md).
 - Reproducible package/report generation: `scripts/build-store-package.ps1`.
 - Source artwork and reproducible size variants: `artwork/` and `scripts/build-icon-assets.ps1`.
+
+Latest installation/certification evidence and blocked checks:
+[release-validation-results.md](release-validation-results.md).
