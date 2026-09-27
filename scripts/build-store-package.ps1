@@ -67,4 +67,3 @@ $report = [pscustomobject]@{
 }
 $report | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $outputPath 'package-report.json') -Encoding utf8
 $report | ConvertTo-Json -Depth 6
-
