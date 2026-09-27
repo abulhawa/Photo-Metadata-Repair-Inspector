@@ -20,6 +20,32 @@ public sealed class RepairServiceTests : IDisposable
         return path;
     }
 
+    [Theory]
+    [InlineData("taken:modified", "2024-03-21 19:00:00")]
+    [InlineData("created:modified", "2024-03-21 19:00:00")]
+    [InlineData("modified:created", "2024-03-21 18:00:00")]
+    public void AdditionalDateSourcesAreAppliedAndAudited(string methodId, string expected)
+    {
+        string path = Make();
+        File.Copy(Path.Combine(AppContext.BaseDirectory, "Fixtures", "empty.jpg"), path, true);
+        File.SetCreationTime(path, new DateTime(2024, 3, 21, 18, 0, 0));
+        File.SetLastWriteTime(path, new DateTime(2024, 3, 21, 19, 0, 0));
+        byte[] original = File.ReadAllBytes(path);
+        var reader = new MetadataReader();
+        var method = RepairPlanner.FindMethod(methodId);
+        var service = new RepairService(root, reader);
+        var result = service.Apply(RepairPlanner.Plan(reader.ReadFile(path), method));
+        Assert.True(result.Success, result.Status);
+        var refreshed = Assert.IsType<MediaRecord>(result.RefreshedRecord);
+        Assert.Equal(expected, method.Target switch {
+            "taken" => refreshed.Taken, "created" => refreshed.Created, _ => refreshed.Modified
+        });
+        Assert.Equal(original, File.ReadAllBytes(Path.Combine(service.BackupRoot, Path.GetFileName(path))));
+        Assert.Contains(method.Label, File.ReadAllText(service.LogPath));
+        Assert.Contains("OK", File.ReadAllText(service.LogPath));
+        if (method.Target != "taken") Assert.Equal(original, File.ReadAllBytes(path));
+    }
+
     [Fact]
     public void BackupKeepsFirstPreRepairOriginalAndAuditIsWritten()
     {

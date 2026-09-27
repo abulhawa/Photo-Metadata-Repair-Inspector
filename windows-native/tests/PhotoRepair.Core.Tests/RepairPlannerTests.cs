@@ -4,6 +4,31 @@ namespace PhotoRepair.Core.Tests;
 
 public sealed class RepairPlannerTests
 {
+    [Theory]
+    [InlineData("taken:modified", "2024-03-21 19:00:00")]
+    [InlineData("created:modified", "2024-03-21 19:00:00")]
+    [InlineData("modified:created", "2024-03-21 18:00:00")]
+    public void FilesystemSourcesProduceExactPreviewValues(string id, string expected)
+    {
+        var plan = RepairPlanner.Plan(Record(), RepairPlanner.FindMethod(id));
+        Assert.True(plan.Applicable);
+        Assert.Equal(expected, plan.After);
+    }
+
+    [Fact]
+    public void EveryDistinctSourceAndDestinationIsAvailable()
+    {
+        Assert.Equal(9, MediaRules.RepairMethods.Count);
+        foreach (var target in MediaRules.RepairTargets)
+        {
+            var sources = MediaRules.SourcesForTarget(target.Id);
+            Assert.Equal(3, sources.Count);
+            Assert.DoesNotContain(sources, source => source.Id == target.Id);
+            foreach (var source in sources)
+                Assert.Equal(source.Id, RepairPlanner.FindMethod($"{target.Id}:{source.Id}").Source);
+        }
+    }
+
     private static MediaRecord Record(
         string path = @"C:\photos\IMG_20240321_174532.jpg",
         string taken = "",

@@ -1,0 +1,34 @@
+[
+  {
+    "File": "01-library.png",
+    "Width": 1905,
+    "Height": 1250,
+    "Bytes": 169775,
+    "Sha256": "48EBDA318D2C2439D25B8C348068BBA1EDFCF9456B92ED398D940057AC2BC348",
+    "Caption": "Compare photo dates from file timestamps, capture metadata and filenames in one place."
+  },
+  {
+    "File": "02-review.png",
+    "Width": 1905,
+    "Height": 1250,
+    "Bytes": 139285,
+    "Sha256": "78F9A4BE58CE030646CA350D95A60CC5FCAA8E12E113177C7E997BE4BBD283EC",
+    "Caption": "Select photos and choose a repair method, with original-file backups enabled by default."
+  },
+  {
+    "File": "03-confirmation.png",
+    "Width": 1905,
+    "Height": 1250,
+    "Bytes": 219385,
+    "Sha256": "A4CB44DE4D609130BEFAC2C72CB3139133313BEC1B5288CFE65B3EF79C24B61B",
+    "Caption": "Inspect proposed date changes before explicitly confirming a batch repair."
+  },
+  {
+    "File": "04-repair-log.png",
+    "Width": 1905,
+    "Height": 1250,
+    "Bytes": 142396,
+    "Sha256": "7C145ED68DD4C98ACAB04ED7A5380951BAA8CEE11A05C6DE13EF909F9C56E9E7",
+    "Caption": "Check the local repair log after applying your confirmed changes."
+  }
+]

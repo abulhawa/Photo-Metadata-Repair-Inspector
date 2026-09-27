@@ -46,7 +46,10 @@ public sealed class ContractTests
         Assert.Equal(MediaRules.ToleranceSeconds, c.GetProperty("timestamp_tolerance_seconds").GetDouble());
         Assert.Equal(Strings(c.GetProperty("writable_taken_extensions")), MediaRules.WritableTakenExtensions);
         Assert.Equal(Strings(c.GetProperty("review_filters")), MediaRules.ReviewFilters);
-        Assert.Equal(c.GetProperty("repair_methods").EnumerateArray().Select(m => new RepairMethod(S(m, "label"), S(m, "target"), S(m, "source"))), MediaRules.RepairMethods);
+        // Native Windows extends the original Python menu; retain each legacy method's semantics.
+        foreach (var m in c.GetProperty("repair_methods").EnumerateArray())
+            Assert.Equal(new RepairMethod(S(m, "label"), S(m, "target"), S(m, "source")),
+                RepairPlanner.FindMethod($"{S(m, "target")}:{S(m, "source")}"));
         Assert.Equal(MediaRules.BackupDirectory, S(c.GetProperty("safety_invariants"), "backup_directory_name"));
         Assert.True(c.GetProperty("safety_invariants").GetProperty("exclude_backup_directory_from_scan").GetBoolean());
     }

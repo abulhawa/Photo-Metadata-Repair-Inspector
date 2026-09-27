@@ -33,7 +33,7 @@ packaged activation checks, but does not prove clean MSIX installation.
 - [ ] Select a folder; ensure selection does not start scanning automatically.
 - [ ] Scan, cancel, search, sort, resize columns and exercise range selection.
 - [ ] Cancel a repair preview and verify there are no writes/backups/log entries.
-- [ ] Apply each of the six methods on suitable disposable examples.
+- [ ] Apply each of the nine source/destination combinations on suitable disposable examples.
 - [ ] Check skips for unavailable sources, matching dates and non-JPEG Taken At.
 - [ ] Exercise backups on/off and preserve the first original after repeated repair.
 - [ ] Check a real JPEG's metadata, image payload and filesystem timestamp preservation.
