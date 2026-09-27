@@ -35,6 +35,7 @@ public sealed class InspectionViewModel(Action<Action> dispatch, MediaScanner? s
     public string? SortColumn { get; private set; }
     public bool Descending { get; private set; }
     public string Status { get; private set; } = "";
+    public string StatusKind { get; private set; } = "Information";
     public bool HasScannedFolder { get; private set; }
     public string? SelectedFolder { get; private set; }
     public string SelectedFolderDisplay => SelectedFolder ?? "No folder selected";
@@ -43,6 +44,7 @@ public sealed class InspectionViewModel(Action<Action> dispatch, MediaScanner? s
     public string Summary => $"{Rows.Count} shown · {records.Count} media files · {records.Count(r => r.Issues.Count > 0)} to review";
     public string SelectionSummary => $"{Selection.Selected.Count} selected · Backups {(CreateBackup ? "on" : "off")}";
     public string Log { get; private set; } = "No folder loaded.";
+    public bool HasRepairLog { get; private set; }
     public bool IsScanning => cancellation is not null;
     public bool IsApplying => applying;
     public bool CanSelectFolder => !IsScanning && !IsApplying && !IsChoosingFolder;
@@ -58,13 +60,14 @@ public sealed class InspectionViewModel(Action<Action> dispatch, MediaScanner? s
     public Task ScanSelectedFolderAsync() => CanScan ? ScanAsync(SelectedFolder!) : Task.CompletedTask;
 
     public bool CanReviewChanges => rootPath is not null && !IsScanning && !IsApplying && Selection.Selected.Count > 0;
+    public bool IsDiscovering { get; private set; }
     public double Completed { get; private set; }
     public double Total { get; private set; } = 1;
     public string ProgressText { get; private set; } = "";
     public event PropertyChangedEventHandler? PropertyChanged;
 
     private void Notify() => PropertyChanged?.Invoke(this, new(null));
-    public void ReportError(string message) { Status = message; Notify(); }
+    public void ReportError(string message) { Status = message; StatusKind = "Error"; Notify(); }
 
     public async Task ScanAsync(string root)
     {
@@ -73,6 +76,8 @@ public sealed class InspectionViewModel(Action<Action> dispatch, MediaScanner? s
         using var source = new CancellationTokenSource();
         cancellation = source;
         int current = ++generation;
+        IsDiscovering = true;
+        StatusKind = "Information";
         Status = $"Scanning {root}"; ProgressText = "Discovering files…"; Completed = 0; Total = 1; Notify();
         try
         {
@@ -80,8 +85,11 @@ public sealed class InspectionViewModel(Action<Action> dispatch, MediaScanner? s
             var scanned = await scanner.ScanAsync(root, p => dispatch(() =>
             {
                 if (current != generation || !IsScanning) return;
-                Completed = p.Completed; Total = Math.Max(1, p.Total);
-                ProgressText = $"{p.Completed} / {p.Total}"; Notify();
+                IsDiscovering = p.IsDiscovering;
+                Completed = p.IsDiscovering ? 0 : p.Completed; Total = Math.Max(1, p.Total);
+                ProgressText = p.IsDiscovering
+                    ? $"Discovering files · {p.FoldersSearched:N0} folders searched · {p.Completed:N0} media files found"
+                    : $"Reading metadata · {p.Completed:N0} / {p.Total:N0}"; Notify();
             }), source.Token);
             if (!source.IsCancellationRequested || scanned.Count > 0)
             {
@@ -93,11 +101,12 @@ public sealed class InspectionViewModel(Action<Action> dispatch, MediaScanner? s
                 Status = source.IsCancellationRequested ? $"Partial results: {root}" : root;
             }
             else Status = "Scan stopped. Previous results kept.";
+            StatusKind = source.IsCancellationRequested ? "Warning" : "Success";
             ProgressText = source.IsCancellationRequested ? "Scan stopped" : "Scan complete";
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException)
-        { Status = $"Scan failed: {ex.Message}"; }
-        finally { cancellation = null; Notify(); }
+        { Status = $"Scan failed: {ex.Message}"; StatusKind = "Error"; }
+        finally { cancellation = null; IsDiscovering = false; Notify(); }
     }
 
     public void Stop() { cancellation?.Cancel(); if (IsScanning) { Status = "Stopping scan…"; Notify(); } }
@@ -164,6 +173,7 @@ public sealed class InspectionViewModel(Action<Action> dispatch, MediaScanner? s
             throw new InvalidOperationException("The scanned folder changed since the preview. Review changes again.");
         bool createBackup = preview.CreateBackup;
         applying = true;
+        StatusKind = "Information";
         Status = $"Applying {preview.ApplicableCount} repair{(preview.ApplicableCount == 1 ? "" : "s")}…";
         Notify();
         try
@@ -179,6 +189,7 @@ public sealed class InspectionViewModel(Action<Action> dispatch, MediaScanner? s
             await LoadLogAsync();
             int succeeded = results.Count(result => result.Success);
             int failed = results.Count - succeeded;
+            StatusKind = failed == 0 ? "Success" : "Warning";
             Status = failed == 0
                 ? $"Applied {succeeded} repair{(succeeded == 1 ? "" : "s")}."
                 : $"Applied {succeeded}; {failed} failed. See Repair log for details.";
@@ -195,8 +206,12 @@ public sealed class InspectionViewModel(Action<Action> dispatch, MediaScanner? s
     {
         if (rootPath is null) { Log = "No folder loaded."; return; }
         string path = Path.Combine(rootPath, ".photo-repair-repair-log.csv");
-        try { Log = File.Exists(path) ? await File.ReadAllTextAsync(path) : "No repairs have been recorded for this folder."; }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { Log = $"Could not read repair log: {ex.Message}"; }
+        try
+        {
+            HasRepairLog = File.Exists(path);
+            Log = HasRepairLog ? await File.ReadAllTextAsync(path) : "No repairs have been recorded for this folder.";
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { HasRepairLog = true; Log = $"Could not read repair log: {ex.Message}"; }
     }
 
     private void SyncSelection()

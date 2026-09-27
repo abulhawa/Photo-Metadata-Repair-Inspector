@@ -67,8 +67,31 @@ public sealed class AdapterTests : IDisposable
         var result = await scanner.ScanAsync(root, updates.Add);
         Assert.Equal(paths, result.Select(r => r.Path));
         Assert.InRange(peak, 2, 3);
-        Assert.Equal(Enumerable.Range(0, 13), updates.Select(p => p.Completed));
-        Assert.All(updates, p => Assert.Equal(12, p.Total));
+        var reading = updates.Where(p => !p.IsDiscovering).ToArray();
+        Assert.Equal(Enumerable.Range(0, 13), reading.Select(p => p.Completed));
+        Assert.All(reading, p => Assert.Equal(12, p.Total));
+        Assert.True(updates[0].IsDiscovering);
+        Assert.Equal(12, updates.Last(p => p.IsDiscovering).Completed);
+    }
+    [Fact]
+    public async Task DiscoveryReportsActivityBeforeReadingEvenWithoutMedia()
+    {
+        Make("nested/deeper/ignore.txt");
+        List<ScanProgress> updates = [];
+        Assert.Empty(await new MediaScanner().ScanAsync(root, updates.Add));
+        Assert.True(updates[0].IsDiscovering);
+        var discovery = updates.Last(p => p.IsDiscovering);
+        Assert.Equal(3, discovery.FoldersSearched);
+        Assert.Equal(0, discovery.Completed);
+        Assert.False(updates[^1].IsDiscovering);
+    }
+    [Fact]
+    public async Task DiscoveryCanBeCancelledBeforeMetadataReads()
+    {
+        Make("nested/photo.jpg");
+        using var cancel = new CancellationTokenSource();
+        var scanner = new MediaScanner(reader: (_, _) => throw new Xunit.Sdk.XunitException("Must not read"));
+        Assert.Empty(await scanner.ScanAsync(root, p => { if (p.IsDiscovering) cancel.Cancel(); }, cancel.Token));
     }
     [Fact]
     public async Task CancellationReturnsCompletedPartialResults()

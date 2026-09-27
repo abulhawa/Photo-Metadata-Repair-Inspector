@@ -69,3 +69,17 @@ writes remain separate work after native Windows stability.
 
 Latest installation/certification evidence and blocked checks:
 [release-validation-results.md](release-validation-results.md).
+
+## Desktop UI polish (next batch)
+
+Adds File/View/Help menus, visible Library/Review/Repair log tabs, a persistent
+status footer, severity-aware native notifications, usage help, privacy/support
+links and About with package version and approved artwork. Existing scan,
+selection and repair actions are reused.
+
+Release build passed without warnings; 33 Windows presentation tests passed.
+Owner reviewed and accepted the revised UI in Windows Sandbox, including
+view-specific controls, review-column order and compact spacing. Discovery now
+reports live folder/media counts before metadata reading. Native host launch
+previously hit Application Control restrictions; security settings were retained.
+Genuine Store screenshots and packaged workflow checks remain pending.
