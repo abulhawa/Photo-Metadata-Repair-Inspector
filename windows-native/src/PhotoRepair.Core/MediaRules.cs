@@ -7,6 +7,8 @@ public sealed record RepairMethod(string Label, string Target, string Source)
     public string Id => $"{Target}:{Source}";
 }
 
+public sealed record RepairDateField(string Id, string Label);
+
 public static class MediaRules
 {
     public const double ToleranceSeconds = 1;
@@ -15,13 +17,25 @@ public static class MediaRules
     public static IReadOnlyList<string> VideoExtensions { get; } = Array.AsReadOnly(new[] { ".mp4", ".mov", ".avi", ".mkv", ".wmv", ".m4v", ".mpg", ".mpeg", ".3gp", ".webm" });
     public static IReadOnlyList<string> WritableTakenExtensions { get; } = Array.AsReadOnly(new[] { ".jpg", ".jpeg" });
     public static IReadOnlyList<string> ReviewFilters { get; } = Array.AsReadOnly(new[] { "Missing Taken At", "Taken > Created", "Taken > Modified" });
+    public static IReadOnlyList<RepairDateField> RepairTargets { get; } = Array.AsReadOnly(new[] {
+        new RepairDateField("taken", "Taken At"), new RepairDateField("created", "Created"), new RepairDateField("modified", "Modified")
+    });
+    public static IReadOnlyList<RepairDateField> RepairSources { get; } = Array.AsReadOnly(new[] {
+        new RepairDateField("filename", "Filename date"), new RepairDateField("taken", "Taken At"),
+        new RepairDateField("created", "Created"), new RepairDateField("modified", "Modified")
+    });
+    public static IReadOnlyList<RepairDateField> SourcesForTarget(string target) =>
+        RepairSources.Where(source => source.Id != target).ToArray();
     public static IReadOnlyList<RepairMethod> RepairMethods { get; } = Array.AsReadOnly(new[] {
         new RepairMethod("Set Taken At from filename", "taken", "filename"),
         new RepairMethod("Set Taken At from Created", "taken", "created"),
         new RepairMethod("Set Created from Taken At", "created", "taken"),
         new RepairMethod("Set Created from filename", "created", "filename"),
         new RepairMethod("Set Modified from Taken At", "modified", "taken"),
-        new RepairMethod("Set Modified from filename", "modified", "filename")
+        new RepairMethod("Set Modified from filename", "modified", "filename"),
+        new RepairMethod("Set Taken At from Modified", "taken", "modified"),
+        new RepairMethod("Set Created from Modified", "created", "modified"),
+        new RepairMethod("Set Modified from Created", "modified", "created")
     });
     public static string Classify(string path)
     {

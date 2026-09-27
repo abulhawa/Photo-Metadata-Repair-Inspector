@@ -21,7 +21,9 @@ The Review view highlights missing JPEG capture dates and capture dates later
 than the file's Created or Modified timestamp. Common copy-related date ordering
 is not automatically treated as an error.
 
-Select files and choose where a replacement date should come from. Review the
+Select files, choose the date to set and the source date to use. Taken At,
+Created and Modified can each use any other available date, including a filename
+date. Review the
 proposed changes before confirming. Original-file backups are enabled by default,
 and repair attempts are recorded in a local CSV log. Successfully repaired files
 are refreshed in the table without rescanning the entire collection.
@@ -65,6 +67,17 @@ paths or photos. Capture actual app UI; do not substitute mockups.
 3. Confirmation: proposed before/after dates and Apply count.
 4. Results: refreshed Library/Review and the local repair log.
 
-Artwork is owner-approved. Screenshots remain outstanding. Verify image requirements in
-Partner Center before uploading. See the official
-[submission guide](https://learn.microsoft.com/en-us/windows/apps/publish/publish-your-app/msix/create-app-submission).
+Artwork is owner-approved. Four actual app screenshots have been visually
+reviewed and saved in `.artifacts/store-screenshots/` as `01-library.png`,
+`02-review.png`, `03-confirmation.png` and `04-repair-log.png`. Each is
+1905 × 1250 pixels; source copies are preserved in `C:\Projects\CaptureOutput`.
+The screenshot manifest contains upload order, captions and SHA-256 hashes.
+Review and confirmation were refreshed for the two-picker update and approved
+by the owner. Versioned upload copies and captions are in
+[`artwork/store-screenshots/`](../artwork/store-screenshots/). Library and Repair
+log are unchanged.
+The final capture
+sequence, filenames, captions and manual evidence checklist are in
+[store-capture-guide.md](store-capture-guide.md). Desktop PNGs must be at least
+1366 × 768 pixels and below 50 MB; captions must be no more than 200 characters.
+See Microsoft's [MSIX screenshot requirements](https://learn.microsoft.com/en-us/windows/apps/publish/publish-your-app/msix/screenshots-and-images).

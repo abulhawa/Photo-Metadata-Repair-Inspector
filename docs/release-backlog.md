@@ -83,3 +83,35 @@ view-specific controls, review-column order and compact spacing. Discovery now
 reports live folder/media counts before metadata reading. Native host launch
 previously hit Application Control restrictions; security settings were retained.
 Genuine Store screenshots and packaged workflow checks remain pending.
+
+## Final UI candidate validation
+
+The repair dropdown has since been replaced by compact Set/From controls with
+all nine valid date combinations. Local verification: 38 core and 36 Windows
+tests passed, plus Release package build and manifest validation. The owner
+checked the settings and supplied final Review/confirmation screenshots; the
+four-image set is versioned in `artwork/store-screenshots/`.
+The current package also passed a fresh, full local certification-kit run;
+evidence is in `.artifacts/certification-two-picker/`. Store submission and the
+remaining manual safety/clean-profile/minimum-OS gates are still open.
+
+Final Store screenshots are captured and visually reviewed: Library, selected
+Review rows, explicit confirmation and successful Repair log. All four PNGs are
+1905 × 1250 with the approved title-bar icon. Files and captions are under
+`.artifacts/store-screenshots/`. Remaining manual safety/lifecycle gates are
+not closed by these images. The icon-refreshed package also needs certification
+of its new hash; the preceding package passed the local kit.
+
+Final UI commit `173cb9a` has successful native and Python CI. The local unsigned
+1.0.0.0 candidate was rebuilt and its reserved manifest identity verified.
+Local Python tests passed (46); local native test execution is blocked by
+Application Control (0x800711C7), so CI supplies the automated native evidence.
+The earlier WACK and lifecycle reports predate this final UI. A fresh WACK pass
+on the rebuilt candidate completed with PASS and PARTIAL_RUN=FALSE; evidence is
+under `.artifacts/certification-final-ui/`. Final screenshots and live workflow
+checks remain open.
+
+Run `scripts/prepare-store-capture.ps1` to prepare an isolated Sandbox capture
+bundle without host installation. See [store-capture-guide.md](store-capture-guide.md)
+for final captions and the remaining manual gates. Preparation is not capture
+or packaged lifecycle evidence.

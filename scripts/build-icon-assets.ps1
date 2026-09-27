@@ -32,4 +32,30 @@ try {
     }
     Write-Icon 'StoreLogo.png' 50 50
     Write-Icon 'LockScreenLogo.scale-200.png' 48 48
+    # ICO container retains the approved PNG pixels at each Windows icon size.
+    $sizes = @(16,24,32,48,256)
+    $frames = @($sizes | ForEach-Object {
+        ,([IO.File]::ReadAllBytes((Join-Path $assets "Square44x44Logo.targetsize-$_.png")))
+    })
+    $stream = [IO.File]::Create((Join-Path $assets 'PhotoRepair.ico'))
+    $writer = [IO.BinaryWriter]::new($stream)
+    try {
+        $writer.Write([uint16]0)
+        $writer.Write([uint16]1)
+        $writer.Write([uint16]$sizes.Count)
+        $offset = 6 + 16 * $sizes.Count
+        for ($index = 0; $index -lt $sizes.Count; $index++) {
+            $dimension = if ($sizes[$index] -eq 256) { 0 } else { $sizes[$index] }
+            $writer.Write([byte]$dimension)
+            $writer.Write([byte]$dimension)
+            $writer.Write([byte]0)
+            $writer.Write([byte]0)
+            $writer.Write([uint16]1)
+            $writer.Write([uint16]32)
+            $writer.Write([uint32]$frames[$index].Length)
+            $writer.Write([uint32]$offset)
+            $offset += $frames[$index].Length
+        }
+        foreach ($frame in $frames) { $writer.Write([byte[]]$frame) }
+    } finally { $writer.Dispose() }
 } finally { $source.Dispose() }

@@ -17,11 +17,13 @@ public sealed partial class MainWindow : Window
 {
     private readonly InspectionViewModel model;
     private bool ready;
+    private bool updatingRepairPickers;
     private ScrollViewer? tableScroll;
     public MainWindow()
     {
         model = new(action => DispatcherQueue.TryEnqueue(() => action()));
         InitializeComponent();
+        AppWindow.SetIcon(System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "PhotoRepair.ico"));
         Root.DataContext = model;
         Table.Loaded += (_, _) => ConnectTableScroll();
         Root.Loaded += (_, _) =>
@@ -36,8 +38,8 @@ public sealed partial class MainWindow : Window
         Closed += (_, _) => model.Stop();
         ready = true;
         ReviewFilter.Visibility = Visibility.Collapsed;
-        RepairMethodPicker.ItemsSource = MediaRules.RepairMethods;
-        RepairMethodPicker.SelectedIndex = 0;
+        RepairTargetPicker.ItemsSource = MediaRules.RepairTargets;
+        RepairTargetPicker.SelectedIndex = 0;
         model.PropertyChanged += (_, _) => UpdateSurface();
         UpdateSurface();
     }
@@ -224,10 +226,29 @@ public sealed partial class MainWindow : Window
     }
     private void SelectAll(object sender, RoutedEventArgs e) => model.SelectAll();
     private void ClearSelection(object sender, RoutedEventArgs e) => model.ClearSelection();
-    private void RepairMethodChanged(object sender, SelectionChangedEventArgs e)
+    private void RepairTargetChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (!ready || RepairMethodPicker.SelectedItem is not RepairMethod method) return;
-        model.SetRepairMethod(method.Id);
+        if (!ready || RepairTargetPicker.SelectedItem is not RepairDateField target) return;
+        string? previousSource = (RepairSourcePicker.SelectedItem as RepairDateField)?.Id;
+        var sources = MediaRules.SourcesForTarget(target.Id);
+        updatingRepairPickers = true;
+        try
+        {
+            RepairSourcePicker.ItemsSource = sources;
+            RepairSourcePicker.SelectedItem = sources.FirstOrDefault(source => source.Id == previousSource) ?? sources[0];
+        }
+        finally { updatingRepairPickers = false; }
+        UpdateRepairMethod();
+    }
+    private void RepairSourceChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (ready && !updatingRepairPickers) UpdateRepairMethod();
+    }
+    private void UpdateRepairMethod()
+    {
+        if (RepairTargetPicker.SelectedItem is RepairDateField target &&
+            RepairSourcePicker.SelectedItem is RepairDateField source)
+            model.SetRepairMethod($"{target.Id}:{source.Id}");
     }
     private void BackupToggled(object sender, RoutedEventArgs e)
     {
