@@ -65,7 +65,6 @@
      <ListBox.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate></ListBox.ItemsPanel>
      <ListBoxItem Content="Library"/><ListBoxItem Content="Review"/><ListBoxItem Content="Repair log"/>
     </ListBox>
-    <TextBlock Text="{Binding Summary}" TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center"/>
    </StackPanel>
    <StackPanel x:Name="FilterBar" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Left">
     <TextBox x:Name="SearchBox" Width="220" PlaceholderText="Filter scanned files…" AutomationProperties.Name="Filter scanned results by filename or location" TextChanged="SearchChanged"/>
@@ -86,16 +85,16 @@
    <ScrollViewer x:Name="HeaderScroll" HorizontalContentAlignment="Left" HorizontalScrollBarVisibility="Hidden" HorizontalScrollMode="Disabled" VerticalScrollBarVisibility="Disabled" VerticalScrollMode="Disabled">
     <Grid x:Name="TableHeader" HorizontalAlignment="Left" Width="{Binding TotalWidth, Source={StaticResource ColumnLayout}}">
      <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="{Binding Items[0].Width, Source={StaticResource ColumnLayout}}"/>
-      <ColumnDefinition Width="{Binding Items[1].Width, Source={StaticResource ColumnLayout}}"/>
-      <ColumnDefinition Width="{Binding Items[2].Width, Source={StaticResource ColumnLayout}}"/>
-      <ColumnDefinition Width="{Binding Items[3].Width, Source={StaticResource ColumnLayout}}"/>
-      <ColumnDefinition Width="{Binding Items[4].Width, Source={StaticResource ColumnLayout}}"/>
-      <ColumnDefinition Width="{Binding Items[5].Width, Source={StaticResource ColumnLayout}}"/>
-      <ColumnDefinition Width="{Binding Items[6].Width, Source={StaticResource ColumnLayout}}"/>
-      <ColumnDefinition Width="{Binding Items[7].Width, Source={StaticResource ColumnLayout}}"/>
-      <ColumnDefinition Width="{Binding Items[8].Width, Source={StaticResource ColumnLayout}}"/>
-      <ColumnDefinition Width="{Binding Items[9].Width, Source={StaticResource ColumnLayout}}"/>
+      <ColumnDefinition Width="{Binding DisplayItems[0].Width, Source={StaticResource ColumnLayout}}"/>
+      <ColumnDefinition Width="{Binding DisplayItems[1].Width, Source={StaticResource ColumnLayout}}"/>
+      <ColumnDefinition Width="{Binding DisplayItems[2].Width, Source={StaticResource ColumnLayout}}"/>
+      <ColumnDefinition Width="{Binding DisplayItems[3].Width, Source={StaticResource ColumnLayout}}"/>
+      <ColumnDefinition Width="{Binding DisplayItems[4].Width, Source={StaticResource ColumnLayout}}"/>
+      <ColumnDefinition Width="{Binding DisplayItems[5].Width, Source={StaticResource ColumnLayout}}"/>
+      <ColumnDefinition Width="{Binding DisplayItems[6].Width, Source={StaticResource ColumnLayout}}"/>
+      <ColumnDefinition Width="{Binding DisplayItems[7].Width, Source={StaticResource ColumnLayout}}"/>
+      <ColumnDefinition Width="{Binding DisplayItems[8].Width, Source={StaticResource ColumnLayout}}"/>
+      <ColumnDefinition Width="{Binding DisplayItems[9].Width, Source={StaticResource ColumnLayout}}"/>
      </Grid.ColumnDefinitions>
      <Button Grid.Column="1" Style="{StaticResource TableHeading}" Tag="File" Content="File" Click="SortColumn"/>
      <Button Grid.Column="2" Style="{StaticResource TableHeading}" Tag="Type" Content="Type" Click="SortColumn"/>
@@ -136,33 +135,33 @@
 
    <ListView.ItemTemplate>
     <DataTemplate x:DataType="presentation:MediaRow">
-     <Grid HorizontalAlignment="Left" Width="{Binding TotalWidth, Source={StaticResource ColumnLayout}}" Tapped="RowTapped" KeyDown="RowKeyDown" Padding="0,2" Background="Transparent" ToolTipService.ToolTip="{Binding Record.Path}">
+     <Grid Tag="MediaRow" HorizontalAlignment="Left" Width="{Binding TotalWidth, Source={StaticResource ColumnLayout}}" Loaded="TableRowLoaded" Tapped="RowTapped" KeyDown="RowKeyDown" Padding="0,2" Background="Transparent" ToolTipService.ToolTip="{Binding Record.Path}">
       <Grid.Resources><Style TargetType="TextBlock"><Setter Property="VerticalAlignment" Value="Center"/><Setter Property="Margin" Value="0,0,8,0"/></Style></Grid.Resources>
       <Grid.ContextFlyout><MenuFlyout><MenuFlyoutItem Text="Open file" Click="OpenFile"/><MenuFlyoutItem Text="Show in Explorer" Click="RevealFile"/><MenuFlyoutItem Text="Copy full path" Click="CopyPath"/></MenuFlyout></Grid.ContextFlyout>
       <Grid.ColumnDefinitions>
-       <ColumnDefinition Width="{Binding Items[0].Width, Source={StaticResource ColumnLayout}}"/>
-       <ColumnDefinition Width="{Binding Items[1].Width, Source={StaticResource ColumnLayout}}"/>
-       <ColumnDefinition Width="{Binding Items[2].Width, Source={StaticResource ColumnLayout}}"/>
-       <ColumnDefinition Width="{Binding Items[3].Width, Source={StaticResource ColumnLayout}}"/>
-       <ColumnDefinition Width="{Binding Items[4].Width, Source={StaticResource ColumnLayout}}"/>
-       <ColumnDefinition Width="{Binding Items[5].Width, Source={StaticResource ColumnLayout}}"/>
-       <ColumnDefinition Width="{Binding Items[6].Width, Source={StaticResource ColumnLayout}}"/>
-       <ColumnDefinition Width="{Binding Items[7].Width, Source={StaticResource ColumnLayout}}"/>
-       <ColumnDefinition Width="{Binding Items[8].Width, Source={StaticResource ColumnLayout}}"/>
-       <ColumnDefinition Width="{Binding Items[9].Width, Source={StaticResource ColumnLayout}}"/>
+       <ColumnDefinition Width="{Binding DisplayItems[0].Width, Source={StaticResource ColumnLayout}}"/>
+       <ColumnDefinition Width="{Binding DisplayItems[1].Width, Source={StaticResource ColumnLayout}}"/>
+       <ColumnDefinition Width="{Binding DisplayItems[2].Width, Source={StaticResource ColumnLayout}}"/>
+       <ColumnDefinition Width="{Binding DisplayItems[3].Width, Source={StaticResource ColumnLayout}}"/>
+       <ColumnDefinition Width="{Binding DisplayItems[4].Width, Source={StaticResource ColumnLayout}}"/>
+       <ColumnDefinition Width="{Binding DisplayItems[5].Width, Source={StaticResource ColumnLayout}}"/>
+       <ColumnDefinition Width="{Binding DisplayItems[6].Width, Source={StaticResource ColumnLayout}}"/>
+       <ColumnDefinition Width="{Binding DisplayItems[7].Width, Source={StaticResource ColumnLayout}}"/>
+       <ColumnDefinition Width="{Binding DisplayItems[8].Width, Source={StaticResource ColumnLayout}}"/>
+       <ColumnDefinition Width="{Binding DisplayItems[9].Width, Source={StaticResource ColumnLayout}}"/>
       </Grid.ColumnDefinitions>
       <!-- A click sets IsChecked locally. Compiled binding updates reapply the
            model value even after interaction; runtime OneWay Binding can detach. -->
-      <CheckBox MinWidth="0" MinHeight="24" Height="28" Width="32" HorizontalAlignment="Left" IsChecked="{x:Bind IsSelected, Mode=OneWay}" Click="CheckboxClicked" AutomationProperties.Name="{Binding Record.Name}"/>
-      <TextBlock Grid.Column="1" Text="{Binding Record.Name}" TextTrimming="CharacterEllipsis" ToolTipService.ToolTip="{Binding Record.Name}"/>
-      <TextBlock Grid.Column="2" Text="{Binding Record.MediaType}"/>
-      <TextBlock Grid.Column="3" Text="{Binding Record.Size}"/>
-      <TextBlock Grid.Column="4" Text="{Binding Record.Created}"/>
-      <TextBlock Grid.Column="5" Text="{Binding Record.Modified}"/>
-      <TextBlock Grid.Column="6" Text="{Binding Record.Taken}"/>
-      <TextBlock Grid.Column="7" Text="{Binding Record.FilenameDate}"/>
-      <TextBlock Grid.Column="8" Text="{Binding Record.Location}" TextTrimming="CharacterEllipsis" ToolTipService.ToolTip="{Binding Record.Location}"/>
-      <TextBlock Grid.Column="9" Text="{Binding Record.ReviewReason}" TextTrimming="CharacterEllipsis" ToolTipService.ToolTip="{Binding Record.ReviewReason}"/>
+      <CheckBox Tag="0" MinWidth="0" MinHeight="24" Height="28" Width="32" HorizontalAlignment="Left" IsChecked="{x:Bind IsSelected, Mode=OneWay}" Click="CheckboxClicked" AutomationProperties.Name="{Binding Record.Name}"/>
+      <TextBlock Tag="1" Grid.Column="1" Text="{Binding Record.Name}" TextTrimming="CharacterEllipsis" ToolTipService.ToolTip="{Binding Record.Name}"/>
+      <TextBlock Tag="2" Grid.Column="2" Text="{Binding Record.MediaType}"/>
+      <TextBlock Tag="3" Grid.Column="3" Text="{Binding Record.Size}"/>
+      <TextBlock Tag="4" Grid.Column="4" Text="{Binding Record.Created}"/>
+      <TextBlock Tag="5" Grid.Column="5" Text="{Binding Record.Modified}"/>
+      <TextBlock Tag="6" Grid.Column="6" Text="{Binding Record.Taken}"/>
+      <TextBlock Tag="7" Grid.Column="7" Text="{Binding Record.FilenameDate}"/>
+      <TextBlock Tag="8" Grid.Column="8" Text="{Binding Record.Location}" TextTrimming="CharacterEllipsis" ToolTipService.ToolTip="{Binding Record.Location}"/>
+      <TextBlock Tag="9" Grid.Column="9" Text="{Binding Record.ReviewReason}" TextTrimming="CharacterEllipsis" ToolTipService.ToolTip="{Binding Record.ReviewReason}"/>
      </Grid>
     </DataTemplate>
    </ListView.ItemTemplate>
@@ -171,7 +170,6 @@
   <ScrollViewer x:Name="LogPanel" Grid.Row="3" Visibility="Collapsed"><TextBlock Text="{Binding Log}" IsTextSelectionEnabled="True" FontFamily="Consolas" TextWrapping="Wrap"/></ScrollViewer>
   <StackPanel x:Name="SelectionPanel" Grid.Row="4" Spacing="6" Visibility="Collapsed">
    <StackPanel x:Name="SelectionActions" Orientation="Horizontal" Spacing="12">
-    <TextBlock Text="{Binding SelectionSummary}" VerticalAlignment="Center"/>
     <Button Content="Select all" Click="SelectAll"/>
     <Button Content="Clear selection" Click="ClearSelection"/>
    </StackPanel>

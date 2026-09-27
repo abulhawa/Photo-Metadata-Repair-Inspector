@@ -50,6 +50,17 @@ public sealed partial class MainWindow : Window
         SelectionActions.Orientation = narrow ? Orientation.Vertical : Orientation.Horizontal;
         RepairBar.Orientation = narrow ? Orientation.Vertical : Orientation.Horizontal;
     }
+    private void TableRowLoaded(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Grid row) return;
+        var columns = (TableColumns)Root.Resources["ColumnLayout"];
+        foreach (var child in row.Children.OfType<FrameworkElement>())
+        {
+            if (!int.TryParse(child.Tag?.ToString(), out int column)) continue;
+            Grid.SetColumn(child, columns.SlotFor(column));
+            child.Visibility = columns.Items[column].Width.Value > 0 ? Visibility.Visible : Visibility.Collapsed;
+        }
+    }
     private void ConnectTableScroll()
     {
         Table.ApplyTemplate();
@@ -59,6 +70,12 @@ public sealed partial class MainWindow : Window
         tableScroll = viewer;
         tableScroll.ViewChanged += TableScrolled;
         HeaderScroll.ChangeView(tableScroll.HorizontalOffset, null, null, true);
+    }
+    private void UpdateRealizedColumns(DependencyObject parent)
+    {
+        if (parent is Grid { Tag: "MediaRow" } row) TableRowLoaded(row, new RoutedEventArgs());
+        for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            UpdateRealizedColumns(VisualTreeHelper.GetChild(parent, i));
     }
     private void TableScrolled(object? sender, ScrollViewerViewChangedEventArgs e)
     {
@@ -83,7 +100,8 @@ public sealed partial class MainWindow : Window
         FooterStatus.Text = model.IsScanning ? $"Scanning · {model.ProgressText}" : model.IsApplying ? model.Status :
             string.IsNullOrWhiteSpace(model.Status) || model.Status == model.SelectedFolder ? "Ready" : model.Status;
         ToolTipService.SetToolTip(FooterStatus, FooterStatus.Text);
-        FooterCounts.Text = model.HasScannedFolder ? $"{model.Rows.Count} shown · {model.Selection.Selected.Count} selected" : "";
+        FooterCounts.Text = !model.HasScannedFolder || model.View == "Repair log" ? "" :
+            model.View == "Review" ? $"{model.Rows.Count} shown · {model.Selection.Selected.Count} selected" : model.Summary;
         Notification.Severity = model.StatusKind switch
         {
             "Error" => InfoBarSeverity.Error, "Warning" => InfoBarSeverity.Warning,
@@ -91,16 +109,29 @@ public sealed partial class MainWindow : Window
         };
         bool loaded = model.HasScannedFolder;
         bool history = model.View == "Repair log";
+        bool review = model.View == "Review";
+        bool emptyLog = !model.HasRepairLog;
+        FilterBar.Visibility = loaded && !history ? Visibility.Visible : Visibility.Collapsed;
+        var columns = (TableColumns)Root.Resources["ColumnLayout"];
+        columns.SetReview(review);
+        UpdateRealizedColumns(Table);
+        string[] headings = ["", "File", "Type", "Size", "Created", "Modified", "Taken At", "Filename Date", "Location", "Review reason"];
+        foreach (var child in TableHeader.Children.OfType<FrameworkElement>())
+        {
+            int column = child is Button button ? Array.IndexOf(headings, button.Tag?.ToString()) : int.Parse(child.Tag.ToString()!);
+            Grid.SetColumn(child, columns.SlotFor(column));
+            child.Visibility = columns.Items[column].Width.Value > 0 ? Visibility.Visible : Visibility.Collapsed;
+        }
         ResultsControls.Visibility = loaded ? Visibility.Visible : Visibility.Collapsed;
-        WelcomePanel.Visibility = !loaded || (!history && model.Rows.Count == 0) ? Visibility.Visible : Visibility.Collapsed;
-        EmptyTitle.Text = !loaded ? "Inspect your photo dates" : model.View == "Review" && string.IsNullOrWhiteSpace(model.Search) && model.Media == "All" && model.Issue == "All review items"
+        WelcomePanel.Visibility = !loaded || (history ? emptyLog : model.Rows.Count == 0) ? Visibility.Visible : Visibility.Collapsed;
+        EmptyTitle.Text = !loaded ? "Inspect your photo dates" : history ? "No repairs recorded" : model.View == "Review" && string.IsNullOrWhiteSpace(model.Search) && model.Media == "All" && model.Issue == "All review items"
             ? "No files need review" : "No files to show";
         EmptyDescription.Text = !loaded ? "Choose a folder above, then click Scan folder. You can review dates before making any changes."
-            : "Try changing the filters or scanning a different folder.";
+            : history ? "Repairs you apply to this folder will appear here." : "Try changing the filters or scanning a different folder.";
         Table.Visibility = loaded && !history ? Visibility.Visible : Visibility.Collapsed;
         TableRegion.Visibility = Table.Visibility;
-        LogPanel.Visibility = loaded && history ? Visibility.Visible : Visibility.Collapsed;
-        SelectionPanel.Visibility = loaded && !history ? Visibility.Visible : Visibility.Collapsed;
+        LogPanel.Visibility = loaded && history && !emptyLog ? Visibility.Visible : Visibility.Collapsed;
+        SelectionPanel.Visibility = loaded && review ? Visibility.Visible : Visibility.Collapsed;
         ReviewFilter.Visibility = model.View == "Review" ? Visibility.Visible : Visibility.Collapsed;
         RepairBar.Visibility = model.View == "Review" ? Visibility.Visible : Visibility.Collapsed;
         StopButton.Visibility = model.IsScanning ? Visibility.Visible : Visibility.Collapsed;
@@ -173,6 +204,7 @@ public sealed partial class MainWindow : Window
     }
     private void TableKeyDown(object sender, KeyRoutedEventArgs e)
     {
+        if (model.View != "Review") return;
         if (e.Key == VirtualKey.A && Down(VirtualKey.Control)) { model.SelectAll(); e.Handled = true; }
         else if (e.Key == VirtualKey.Escape) { model.ClearSelection(); e.Handled = true; }
     }
@@ -299,7 +331,7 @@ public sealed partial class MainWindow : Window
     private static bool Down(VirtualKey key) => InputKeyboardSource.GetKeyStateForCurrentThread(key).HasFlag(CoreVirtualKeyStates.Down);
     private void SelectRow(object sender, bool checkbox)
     {
-        if (sender is FrameworkElement { DataContext: MediaRow row }) model.Click(row, Down(VirtualKey.Control), Down(VirtualKey.Shift), checkbox);
+        if (model.View == "Review" && sender is FrameworkElement { DataContext: MediaRow row }) model.Click(row, Down(VirtualKey.Control), Down(VirtualKey.Shift), checkbox);
     }
     private void CheckboxClicked(object sender, RoutedEventArgs e) => SelectRow(sender, true);
     private void RowTapped(object sender, TappedRoutedEventArgs e)

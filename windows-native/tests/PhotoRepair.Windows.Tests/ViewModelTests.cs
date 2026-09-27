@@ -9,6 +9,21 @@ public sealed class ViewModelTests : IDisposable
     public void Dispose() => Directory.Delete(root, true);
 
     [Fact]
+    public async Task RepairLogAvailabilityReflectsTheScannedFolder()
+    {
+        var model = new InspectionViewModel(a => a());
+        await model.ScanAsync(root);
+        Assert.False(model.HasRepairLog);
+        string log = Path.Combine(root, ".photo-repair-repair-log.csv");
+        await File.WriteAllTextAsync(log, "timestamp,file\nexample,photo.jpg");
+        await model.ScanAsync(root);
+        Assert.True(model.HasRepairLog);
+        Assert.Contains("photo.jpg", model.Log);
+        File.Delete(log);
+        await model.ScanAsync(root);
+        Assert.False(model.HasRepairLog);
+    }
+    [Fact]
     public async Task SelectingFolderDoesNotScanAndScanRequiresExplicitAction()
     {
         File.WriteAllText(Path.Combine(root, "sample.jpg"), "fixture");

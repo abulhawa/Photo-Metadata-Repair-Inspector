@@ -44,6 +44,7 @@ public sealed class InspectionViewModel(Action<Action> dispatch, MediaScanner? s
     public string Summary => $"{Rows.Count} shown · {records.Count} media files · {records.Count(r => r.Issues.Count > 0)} to review";
     public string SelectionSummary => $"{Selection.Selected.Count} selected · Backups {(CreateBackup ? "on" : "off")}";
     public string Log { get; private set; } = "No folder loaded.";
+    public bool HasRepairLog { get; private set; }
     public bool IsScanning => cancellation is not null;
     public bool IsApplying => applying;
     public bool CanSelectFolder => !IsScanning && !IsApplying && !IsChoosingFolder;
@@ -205,8 +206,12 @@ public sealed class InspectionViewModel(Action<Action> dispatch, MediaScanner? s
     {
         if (rootPath is null) { Log = "No folder loaded."; return; }
         string path = Path.Combine(rootPath, ".photo-repair-repair-log.csv");
-        try { Log = File.Exists(path) ? await File.ReadAllTextAsync(path) : "No repairs have been recorded for this folder."; }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { Log = $"Could not read repair log: {ex.Message}"; }
+        try
+        {
+            HasRepairLog = File.Exists(path);
+            Log = HasRepairLog ? await File.ReadAllTextAsync(path) : "No repairs have been recorded for this folder.";
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { HasRepairLog = true; Log = $"Could not read repair log: {ex.Message}"; }
     }
 
     private void SyncSelection()
