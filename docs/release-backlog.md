@@ -69,3 +69,15 @@ writes remain separate work after native Windows stability.
 
 Latest installation/certification evidence and blocked checks:
 [release-validation-results.md](release-validation-results.md).
+
+## Desktop UI polish (next batch)
+
+Adds File/View/Help menus, visible Library/Review/Repair log tabs, a persistent
+status footer, severity-aware native notifications, usage help, privacy/support
+links and About with package version and approved artwork. Existing scan,
+selection and repair actions are reused.
+
+Release build passed without warnings; 30 Windows presentation tests passed.
+Launching the newly compiled direct executable was blocked by this laptop's
+Application Control policy. The earlier development instance remains running.
+Visual review of the new UI and genuine screenshots remain pending.

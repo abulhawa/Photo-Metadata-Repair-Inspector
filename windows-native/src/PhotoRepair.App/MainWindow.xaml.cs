@@ -60,6 +60,18 @@ public sealed partial class MainWindow : Window
     }
     private void UpdateSurface()
     {
+        FolderMenu.IsEnabled = model.CanSelectFolder;
+        ScanMenu.IsEnabled = model.CanScan;
+        StopMenu.IsEnabled = model.IsScanning;
+        FooterStatus.Text = model.IsScanning ? $"Scanning · {model.ProgressText}" : model.IsApplying ? model.Status :
+            string.IsNullOrWhiteSpace(model.Status) || model.Status == model.SelectedFolder ? "Ready" : model.Status;
+        ToolTipService.SetToolTip(FooterStatus, FooterStatus.Text);
+        FooterCounts.Text = model.HasScannedFolder ? $"{model.Rows.Count} shown · {model.Selection.Selected.Count} selected" : "";
+        Notification.Severity = model.StatusKind switch
+        {
+            "Error" => InfoBarSeverity.Error, "Warning" => InfoBarSeverity.Warning,
+            "Success" => InfoBarSeverity.Success, _ => InfoBarSeverity.Informational
+        };
         bool loaded = model.HasScannedFolder;
         bool history = model.View == "Repair log";
         ResultsControls.Visibility = loaded ? Visibility.Visible : Visibility.Collapsed;
@@ -85,7 +97,7 @@ public sealed partial class MainWindow : Window
         {
             string column = heading.Tag.ToString()!;
             bool active = model.SortColumn == column;
-            heading.Content = column + (active ? model.Descending ? " ↓" : " ↑" : "");
+            heading.Content = column + (active ? model.Descending ? " â†“" : " â†‘" : "");
             string direction = active && !model.Descending ? "descending" : "ascending";
             ToolTipService.SetToolTip(heading, $"Sort by {column}, {direction}");
             Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(heading, $"Sort by {column}");
@@ -130,7 +142,7 @@ public sealed partial class MainWindow : Window
     private void ViewChanged(object sender, SelectionChangedEventArgs e)
     {
         if (!ready) return;
-        model.View = ((ComboBoxItem)ViewPicker.SelectedItem).Content.ToString()!;
+        model.View = ((ListBoxItem)ViewPicker.SelectedItem).Content.ToString()!;
         model.Refresh();
     }
     private void SortColumn(object sender, RoutedEventArgs e)
@@ -178,7 +190,7 @@ public sealed partial class MainWindow : Window
         {
             RepairPreview preview = model.BuildRepairPreview();
             string examples = string.Join("\n\n", preview.Examples.Select(item =>
-                $"{item.Name}\n{item.Method.Label}\n{item.Before}  →  {item.After}"));
+                $"{item.Name}\n{item.Method.Label}\n{item.Before}  â†’  {item.After}"));
             string text = $"Selected: {preview.SelectedCount}\nApplicable: {preview.ApplicableCount}\nSkipped: {preview.SkippedCount}";
             if (!preview.CreateBackup)
                 text += "\n\nWARNING: Backups are OFF. These changes will be made in place without a recovery copy created by this application.";
@@ -215,6 +227,58 @@ public sealed partial class MainWindow : Window
             model.ReportError($"Repair could not start: {ex.Message}");
         }
     }
+    private void ExitApp(object sender, RoutedEventArgs e) => Close();
+    private void ChooseView(object sender, RoutedEventArgs e)
+    {
+        if (sender is MenuFlyoutItem item && int.TryParse(item.Tag?.ToString(), out int index))
+            ViewPicker.SelectedIndex = index;
+    }
+    private async Task ShowTextDialog(string title, string text)
+    {
+        await new ContentDialog
+        {
+            XamlRoot = Root.XamlRoot, Title = title, CloseButtonText = "Close",
+            Content = new ScrollViewer { MaxHeight = 460, Content = new TextBlock
+                { Text = text, TextWrapping = TextWrapping.Wrap, IsTextSelectionEnabled = true } }
+        }.ShowAsync();
+    }
+    private async void ShowHelp(object sender, RoutedEventArgs e) => await ShowTextDialog("How to use",
+        "1. Select a folder, then choose Scan folder. Scanning does not repair files.\n\n" +
+        "2. Browse Library or open Review to inspect files that need attention. Use the filters and select the files you want to repair.\n\n" +
+        "3. Choose a repair method. Keep Backup originals enabled for a recovery copy. Select Review changes to inspect the proposed changes.\n\n" +
+        "4. Nothing is written until you explicitly choose Apply in the confirmation dialog. Inspect the Repair log afterward.\n\n" +
+        "Photos stay on your computer. Backups and repair logs remain in the scanned folder after uninstalling the app.");
+    private async void ShowAbout(object sender, RoutedEventArgs e)
+    {
+        string version;
+        try
+        {
+            var v = global::Windows.ApplicationModel.Package.Current.Id.Version;
+            version = $"{v.Major}.{v.Minor}.{v.Build}.{v.Revision}";
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or System.Runtime.InteropServices.COMException)
+        {
+            version = typeof(App).Assembly.GetName().Version?.ToString() ?? "Unknown";
+            version += " (development build)";
+        }
+        var content = new StackPanel { Spacing = 12 };
+        content.Children.Add(new Image { Source = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(
+            new Uri("ms-appx:///Assets/Square44x44Logo.png")), Width = 64, Height = 64, HorizontalAlignment = HorizontalAlignment.Left });
+        content.Children.Add(new TextBlock { Text = $"Photo Metadata Repair Inspector\nVersion {version}\nQortxAI", TextWrapping = TextWrapping.Wrap, IsTextSelectionEnabled = true });
+        content.Children.Add(new HyperlinkButton { Content = "QortxAI website", NavigateUri = new Uri("https://qortxai.com") });
+        content.Children.Add(new HyperlinkButton { Content = "Privacy policy", NavigateUri = new Uri("https://qortxai.com/projects/photo-metadata-repair-inspector/privacy/") });
+        await new ContentDialog { XamlRoot = Root.XamlRoot, Title = "About", Content = content, CloseButtonText = "Close" }.ShowAsync();
+    }
+    private async Task OpenWeb(string url)
+    {
+        try
+        {
+            if (!await Launcher.LaunchUriAsync(new Uri(url))) model.ReportError("Could not open your browser. Try again from Help.");
+        }
+        catch (Exception ex) { model.ReportError($"Could not open your browser: {ex.Message}"); }
+    }
+    private async void OpenPrivacy(object sender, RoutedEventArgs e) => await OpenWeb("https://qortxai.com/projects/photo-metadata-repair-inspector/privacy/");
+    private async void OpenIssues(object sender, RoutedEventArgs e) => await OpenWeb("https://github.com/abulhawa/Windows-Photo-Repair-Inspector/issues");
     private static bool Down(VirtualKey key) => InputKeyboardSource.GetKeyStateForCurrentThread(key).HasFlag(CoreVirtualKeyStates.Down);
     private void SelectRow(object sender, bool checkbox)
     {

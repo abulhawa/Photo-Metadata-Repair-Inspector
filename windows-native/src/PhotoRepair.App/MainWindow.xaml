@@ -4,7 +4,28 @@
  xmlns:presentation="using:PhotoRepair.Windows"
  xmlns:local="using:PhotoRepair.App"
  Title="Photo Metadata Repair Inspector">
- <Grid x:Name="Root" Padding="12" RowSpacing="6" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+ <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+ <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+ <MenuBar>
+  <MenuBarItem Title="File">
+   <MenuFlyoutItem Text="Select folder…" Click="PickFolder" x:Name="FolderMenu"/>
+   <MenuFlyoutItem x:Name="ScanMenu" Text="Scan folder" Click="ScanFolder"/>
+   <MenuFlyoutItem x:Name="StopMenu" Text="Stop scan" Click="StopScan"/>
+   <MenuFlyoutSeparator/><MenuFlyoutItem Text="Exit" Click="ExitApp"/>
+  </MenuBarItem>
+  <MenuBarItem Title="View">
+   <MenuFlyoutItem Text="Library" Tag="0" Click="ChooseView"/>
+   <MenuFlyoutItem Text="Review" Tag="1" Click="ChooseView"/>
+   <MenuFlyoutItem Text="Repair log" Tag="2" Click="ChooseView"/>
+  </MenuBarItem>
+  <MenuBarItem Title="Help">
+   <MenuFlyoutItem Text="How to use" Click="ShowHelp"/>
+   <MenuFlyoutItem Text="Privacy policy" Click="OpenPrivacy"/>
+   <MenuFlyoutItem Text="Report an issue" Click="OpenIssues"/>
+   <MenuFlyoutSeparator/><MenuFlyoutItem Text="About" Click="ShowAbout"/>
+  </MenuBarItem>
+ </MenuBar>
+ <Grid x:Name="Root" Grid.Row="1" Padding="12" RowSpacing="6" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
  <Grid.Resources>
   <local:TableColumns x:Key="ColumnLayout"/>
   <Style x:Key="ColumnDivider" TargetType="local:ColumnResizeGrip">
@@ -25,7 +46,7 @@
   <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
   <Grid ColumnSpacing="12">
    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-   <Button Content="Select folder…" Click="PickFolder" IsEnabled="{Binding CanSelectFolder}" VerticalAlignment="Center"/>
+   <Button Content="Select folderâ€¦" Click="PickFolder" IsEnabled="{Binding CanSelectFolder}" VerticalAlignment="Center"/>
    <StackPanel Grid.Column="1" VerticalAlignment="Center">
     <TextBlock Text="{Binding SelectedFolderDisplay}" TextTrimming="CharacterEllipsis" IsTextSelectionEnabled="True" ToolTipService.ToolTip="{Binding SelectedFolderDisplay}" AutomationProperties.Name="Selected folder"/>
    </StackPanel>
@@ -35,18 +56,19 @@
    </StackPanel>
   </Grid>
   <StackPanel x:Name="StatusPanel" Grid.Row="1" Spacing="4" Visibility="Collapsed">
-   <TextBlock Text="{Binding Status}" TextTrimming="CharacterEllipsis" ToolTipService.ToolTip="{Binding Status}"/>
+   <InfoBar x:Name="Notification" IsOpen="True" IsClosable="False" Message="{Binding Status}"/>
    <Grid x:Name="ScanProgress" Visibility="Collapsed"><TextBlock Text="{Binding ProgressText}"/><ProgressBar Margin="0,24,0,0" Value="{Binding Completed}" Maximum="{Binding Total}"/></Grid>
   </StackPanel>
   <StackPanel x:Name="ResultsControls" Grid.Row="2" Spacing="4" Visibility="Collapsed">
   <Grid ColumnSpacing="12">
    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-    <ComboBox x:Name="ViewPicker" SelectedIndex="0" SelectionChanged="ViewChanged" AutomationProperties.Name="View">
-     <ComboBoxItem Content="Library"/><ComboBoxItem Content="Review"/><ComboBoxItem Content="Repair log"/>
-    </ComboBox>
+    <ListBox x:Name="ViewPicker" SelectedIndex="0" SelectionChanged="ViewChanged" AutomationProperties.Name="View" BorderThickness="0">
+     <ListBox.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate></ListBox.ItemsPanel>
+     <ListBoxItem Content="Library"/><ListBoxItem Content="Review"/><ListBoxItem Content="Repair log"/>
+    </ListBox>
    <TextBlock Grid.Column="1" Text="{Binding Summary}" TextTrimming="CharacterEllipsis" ToolTipService.ToolTip="{Binding Summary}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center"/>
    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
-    <TextBox x:Name="SearchBox" Width="220" PlaceholderText="Filter scanned files…" AutomationProperties.Name="Filter scanned results by filename or location" TextChanged="SearchChanged"/>
+    <TextBox x:Name="SearchBox" Width="220" PlaceholderText="Filter scanned filesâ€¦" AutomationProperties.Name="Filter scanned results by filename or location" TextChanged="SearchChanged"/>
     <ComboBox x:Name="MediaFilter" SelectedIndex="0" SelectionChanged="FilterChanged" AutomationProperties.Name="File type">
      <ComboBoxItem Content="All files" Tag="All"/><ComboBoxItem Content="Photos" Tag="image"/><ComboBoxItem Content="Videos" Tag="video"/>
     </ComboBox>
@@ -157,8 +179,14 @@
    <StackPanel x:Name="RepairBar" Orientation="Horizontal" Spacing="12" Visibility="Collapsed">
     <ComboBox x:Name="RepairMethodPicker" DisplayMemberPath="Label" SelectionChanged="RepairMethodChanged" AutomationProperties.Name="Repair method"/>
     <CheckBox x:Name="BackupOriginals" Content="Backup originals" IsChecked="True" Click="BackupToggled"/>
-    <Button Content="Review changes…" Click="ReviewChanges" IsEnabled="{Binding CanReviewChanges}"/>
+    <Button Content="Review changesâ€¦" Click="ReviewChanges" IsEnabled="{Binding CanReviewChanges}"/>
    </StackPanel>
   </StackPanel>
+ </Grid>
+ <Grid Grid.Row="2" Padding="12,6" ColumnSpacing="16" BorderThickness="0,1,0,0" BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}">
+  <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+  <TextBlock x:Name="FooterStatus" Text="Ready" TextTrimming="CharacterEllipsis"/>
+  <TextBlock x:Name="FooterCounts" Grid.Column="1" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+ </Grid>
  </Grid>
 </Window>
