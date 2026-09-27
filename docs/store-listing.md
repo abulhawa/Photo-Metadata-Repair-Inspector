@@ -51,7 +51,7 @@ review filters, batch repair previews, optional backups and local repair logs.
 
 ## Support and privacy fields
 
-Support URL: https://github.com/abulhawa/Windows-Photo-Repair-Inspector/issues
+Support URL: https://github.com/abulhawa/Photo-Metadata-Repair-Inspector/issues
 Privacy policy URL: https://qortxai.com/projects/photo-metadata-repair-inspector/privacy/
 Privacy source: docs/privacy.md; the public page also explains the website’s
 separate hosting/font/analytics services.

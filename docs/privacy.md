@@ -30,7 +30,7 @@ metadata or private file paths. Describe the issue using disposable example file
 where possible.
 
 Questions can be submitted through the project's
-[support tracker](https://github.com/abulhawa/Windows-Photo-Repair-Inspector/issues).
+[support tracker](https://github.com/abulhawa/Photo-Metadata-Repair-Inspector/issues).
 
 ## Public policy and website visitors
 

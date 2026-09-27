@@ -1,6 +1,6 @@
 # Codex handoff: native Windows implementation
 
-Work in the repository `abulhawa/Windows-Photo-Repair-Inspector`.
+Work in the repository `abulhawa/Photo-Metadata-Repair-Inspector`.
 
 Read these files before changing code:
 

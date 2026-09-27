@@ -128,8 +128,8 @@ Requirements:
 Using `uv` is the recommended development setup:
 
 ```bash
-git clone https://github.com/abulhawa/Windows-Photo-Repair-Inspector.git
-cd Windows-Photo-Repair-Inspector
+git clone https://github.com/abulhawa/Photo-Metadata-Repair-Inspector.git
+cd Photo-Metadata-Repair-Inspector
 uv sync
 uv run python main.py
 ```

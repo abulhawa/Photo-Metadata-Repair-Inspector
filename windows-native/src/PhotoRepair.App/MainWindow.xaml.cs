@@ -348,7 +348,7 @@ public sealed partial class MainWindow : Window
         catch (Exception ex) { model.ReportError($"Could not open your browser: {ex.Message}"); }
     }
     private async void OpenPrivacy(object sender, RoutedEventArgs e) => await OpenWeb("https://qortxai.com/projects/photo-metadata-repair-inspector/privacy/");
-    private async void OpenIssues(object sender, RoutedEventArgs e) => await OpenWeb("https://github.com/abulhawa/Windows-Photo-Repair-Inspector/issues");
+    private async void OpenIssues(object sender, RoutedEventArgs e) => await OpenWeb("https://github.com/abulhawa/Photo-Metadata-Repair-Inspector/issues");
     private static bool Down(VirtualKey key) => InputKeyboardSource.GetKeyStateForCurrentThread(key).HasFlag(CoreVirtualKeyStates.Down);
     private void SelectRow(object sender, bool checkbox)
     {
