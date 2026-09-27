@@ -67,6 +67,6 @@ passed solely because registration, CI or a screenshot succeeded.
 
 The final icon and two-picker candidate passed the local certification kit
 (full run) on Windows build 26200; see
-`.artifacts/certification-two-picker/summary.json`. Pending release
-gates include Partner Center declarations, age ratings, availability, and Store
-certification, in addition to the manual checks above.
+`.artifacts/certification-two-picker/summary.json`. Final captures and Partner
+Center submission are complete. Microsoft Store certification remains pending.
+The manual checks above retain any evidence gaps recorded in release-backlog.md.

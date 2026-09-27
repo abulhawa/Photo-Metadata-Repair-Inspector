@@ -2,9 +2,9 @@
 
 Product: Photo Metadata Repair Inspector. Publisher: QortxAI.
 Reserved Store ID: 9PPP5290T27G. Initial release candidate: 1.0.0.0, x64, English.
-Suggested category: Utilities & tools. Pricing: free (owner-selected). Availability
-regions and publication date remain to be selected in Partner Center.
-Complete the age-rating questionnaire using actual app functionality; no rating is presumed here.
+Pricing: free (owner-selected). Partner Center listing fields, availability and
+age ratings were completed for the submitted release. This file retains the
+listing source; see release-backlog.md for current submission status.
 
 ## Short description
 
