@@ -1,7 +1,7 @@
 # Native Windows release backlog
 
 Updated 2026-09-27. Python remains the behavior reference. M1/M2 shipped to
-`main` through PR #7. M3 is tracked by issue #8 and draft PR #9.
+`main` through PR #7. M3 merged through PR #9; issue #8 is closed. M4 is tracked by issue #10.
 
 ## Integration completed
 
@@ -14,25 +14,28 @@ Updated 2026-09-27. Python remains the behavior reference. M1/M2 shipped to
 - Sorting retains row objects, selection and scroll offsets; column resizing,
   fixed headers, keyboard selection and empty-result guidance are retained.
 
-## M3 merge gate
+## M3 evidence and remaining release validation
 
-- [ ] Combined native Release build, core/Windows tests, Python tests and unsigned
+- [x] Combined native Release build, core/Windows tests, Python tests and unsigned
   MSIX pass in GitHub Actions on the final commit.
 - [ ] Manually run the combined packaged app on disposable copies of photos:
   scan, filter, select, preview, cancel without writes, then explicitly Apply.
 - [ ] Exercise backups on/off, first-original retention, existing-EXIF real JPEG,
   filesystem timestamp preservation and unchanged JPEG image data.
 - [ ] Check Repair log presentation and Library/Review state after repair.
-- [ ] Record manual evidence before marking PR #9 ready and closing issue #8.
+- [x] Owner reported the direct executable workflow working; PR #9 merged.
+  Detailed safety cases and packaged activation were not individually attested.
 
 Automated synthetic-fixture coverage is not evidence of the remaining live UI
 and real-photo checks. The table UI was owner-approved before integration.
 
 ## M4 Store preparation
 
-- [ ] Replace development template artwork with final app icons and tile assets.
-- [ ] Choose release version and confirm manifest identity against store-identity.md.
-- [ ] Produce the Store submission package; confirm x64 and supported Windows versions.
+- [x] Replace template artwork with the owner-requested photo-and-clock icon and tile assets.
+  Final owner visual acceptance remains pending.
+- [x] Prepare candidate 1.0.0.0 and verify built identity against store-identity.md.
+- [x] Build direct unsigned x64 MSIX and validate manifest/hash.
+  Declared minimum is Windows 10 build 17763; actual oldest-OS testing remains pending.
 - [ ] Test clean-profile install, packaged launch, folder access, update and uninstall.
 - [ ] Perform available local certification checks and resolve actionable findings.
 - [ ] Prepare screenshots, description, features, category, age ratings, pricing,
@@ -49,3 +52,11 @@ certificate is not assumed to be a Store submission prerequisite. See
 
 M5 Python macOS/Linux work, repository renaming, RAW support and non-JPEG Taken At
 writes remain separate work after native Windows stability.
+
+## Prepared materials
+
+- Free listing and screenshot plan: [store-listing.md](store-listing.md).
+- Privacy text to publish at a stable URL: [privacy.md](privacy.md).
+- Packaging, clean-profile checklist and reviewer notes: [store-validation.md](store-validation.md).
+- Reproducible package/report generation: `scripts/build-store-package.ps1`.
+- Source artwork and reproducible size variants: `artwork/` and `scripts/build-icon-assets.ps1`.
