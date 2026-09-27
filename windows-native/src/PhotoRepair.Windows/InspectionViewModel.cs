@@ -59,6 +59,7 @@ public sealed class InspectionViewModel(Action<Action> dispatch, MediaScanner? s
     public Task ScanSelectedFolderAsync() => CanScan ? ScanAsync(SelectedFolder!) : Task.CompletedTask;
 
     public bool CanReviewChanges => rootPath is not null && !IsScanning && !IsApplying && Selection.Selected.Count > 0;
+    public bool IsDiscovering { get; private set; }
     public double Completed { get; private set; }
     public double Total { get; private set; } = 1;
     public string ProgressText { get; private set; } = "";
@@ -74,6 +75,7 @@ public sealed class InspectionViewModel(Action<Action> dispatch, MediaScanner? s
         using var source = new CancellationTokenSource();
         cancellation = source;
         int current = ++generation;
+        IsDiscovering = true;
         StatusKind = "Information";
         Status = $"Scanning {root}"; ProgressText = "Discovering filesâ€¦"; Completed = 0; Total = 1; Notify();
         try
@@ -82,8 +84,11 @@ public sealed class InspectionViewModel(Action<Action> dispatch, MediaScanner? s
             var scanned = await scanner.ScanAsync(root, p => dispatch(() =>
             {
                 if (current != generation || !IsScanning) return;
-                Completed = p.Completed; Total = Math.Max(1, p.Total);
-                ProgressText = $"{p.Completed} / {p.Total}"; Notify();
+                IsDiscovering = p.IsDiscovering;
+                Completed = p.IsDiscovering ? 0 : p.Completed; Total = Math.Max(1, p.Total);
+                ProgressText = p.IsDiscovering
+                    ? $"Discovering files · {p.FoldersSearched:N0} folders searched · {p.Completed:N0} media files found"
+                    : $"Reading metadata · {p.Completed:N0} / {p.Total:N0}"; Notify();
             }), source.Token);
             if (!source.IsCancellationRequested || scanned.Count > 0)
             {
@@ -100,7 +105,7 @@ public sealed class InspectionViewModel(Action<Action> dispatch, MediaScanner? s
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException)
         { Status = $"Scan failed: {ex.Message}"; StatusKind = "Error"; }
-        finally { cancellation = null; Notify(); }
+        finally { cancellation = null; IsDiscovering = false; Notify(); }
     }
 
     public void Stop() { cancellation?.Cancel(); if (IsScanning) { Status = "Stopping scanâ€¦"; Notify(); } }

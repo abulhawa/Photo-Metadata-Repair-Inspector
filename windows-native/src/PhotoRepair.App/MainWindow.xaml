@@ -57,7 +57,7 @@
   </Grid>
   <StackPanel x:Name="StatusPanel" Grid.Row="1" Spacing="4" Visibility="Collapsed">
    <InfoBar x:Name="Notification" IsOpen="True" IsClosable="False" Message="{Binding Status}"/>
-   <Grid x:Name="ScanProgress" Visibility="Collapsed"><TextBlock Text="{Binding ProgressText}"/><ProgressBar Margin="0,24,0,0" Value="{Binding Completed}" Maximum="{Binding Total}"/></Grid>
+   <Grid x:Name="ScanProgress" Visibility="Collapsed"><TextBlock Text="{Binding ProgressText}"/><ProgressBar IsIndeterminate="{Binding IsDiscovering}" Margin="0,24,0,0" Value="{Binding Completed}" Maximum="{Binding Total}"/></Grid>
   </StackPanel>
   <StackPanel x:Name="ResultsControls" Grid.Row="2" Spacing="4" Visibility="Collapsed">
   <Grid ColumnSpacing="12">
