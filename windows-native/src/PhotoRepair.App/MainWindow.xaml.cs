@@ -24,7 +24,15 @@ public sealed partial class MainWindow : Window
         InitializeComponent();
         Root.DataContext = model;
         Table.Loaded += (_, _) => ConnectTableScroll();
-        AppWindow.Resize(new(1450, 820));
+        Root.Loaded += (_, _) =>
+        {
+            double scale = Root.XamlRoot.RasterizationScale;
+            var display = Microsoft.UI.Windowing.DisplayArea.GetFromWindowId(
+                AppWindow.Id, Microsoft.UI.Windowing.DisplayAreaFallback.Primary);
+            AppWindow.Resize(new(
+                (int)Math.Min(1100 * scale, display.WorkArea.Width * 0.9),
+                (int)Math.Min(720 * scale, display.WorkArea.Height * 0.9)));
+        };
         Closed += (_, _) => model.Stop();
         ready = true;
         ReviewFilter.Visibility = Visibility.Collapsed;
@@ -32,6 +40,15 @@ public sealed partial class MainWindow : Window
         RepairMethodPicker.SelectedIndex = 0;
         model.PropertyChanged += (_, _) => UpdateSurface();
         UpdateSurface();
+    }
+    private void LayoutChanged(object sender, SizeChangedEventArgs e)
+    {
+        if (!ready) return;
+        bool narrow = e.NewSize.Width < 760;
+        NavigationBar.Orientation = narrow ? Orientation.Vertical : Orientation.Horizontal;
+        FilterBar.Orientation = narrow ? Orientation.Vertical : Orientation.Horizontal;
+        SelectionActions.Orientation = narrow ? Orientation.Vertical : Orientation.Horizontal;
+        RepairBar.Orientation = narrow ? Orientation.Vertical : Orientation.Horizontal;
     }
     private void ConnectTableScroll()
     {

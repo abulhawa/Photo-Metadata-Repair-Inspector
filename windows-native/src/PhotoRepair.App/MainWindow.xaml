@@ -25,7 +25,7 @@
    <MenuFlyoutSeparator/><MenuFlyoutItem Text="About" Click="ShowAbout"/>
   </MenuBarItem>
  </MenuBar>
- <Grid x:Name="Root" Grid.Row="1" Padding="12" RowSpacing="6" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+ <Grid x:Name="Root" Grid.Row="1" Padding="12" RowSpacing="10" SizeChanged="LayoutChanged" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
  <Grid.Resources>
   <local:TableColumns x:Key="ColumnLayout"/>
   <Style x:Key="ColumnDivider" TargetType="local:ColumnResizeGrip">
@@ -45,12 +45,12 @@
  </Grid.Resources>
   <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
   <Grid ColumnSpacing="12">
-   <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+   <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
    <Button Content="Select folder…" Click="PickFolder" IsEnabled="{Binding CanSelectFolder}" VerticalAlignment="Center"/>
-   <StackPanel Grid.Column="1" VerticalAlignment="Center">
+   <StackPanel Grid.Column="2" VerticalAlignment="Center">
     <TextBlock Text="{Binding SelectedFolderDisplay}" TextTrimming="CharacterEllipsis" IsTextSelectionEnabled="True" ToolTipService.ToolTip="{Binding SelectedFolderDisplay}" AutomationProperties.Name="Selected folder"/>
    </StackPanel>
-   <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+   <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
     <Button Content="Scan folder" Click="ScanFolder" IsEnabled="{Binding CanScan}" Style="{StaticResource AccentButtonStyle}"/>
     <Button x:Name="StopButton" Content="Stop scan" Click="StopScan" Visibility="Collapsed"/>
    </StackPanel>
@@ -60,23 +60,22 @@
    <Grid x:Name="ScanProgress" Visibility="Collapsed"><TextBlock Text="{Binding ProgressText}"/><ProgressBar IsIndeterminate="{Binding IsDiscovering}" Margin="0,24,0,0" Value="{Binding Completed}" Maximum="{Binding Total}"/></Grid>
   </StackPanel>
   <StackPanel x:Name="ResultsControls" Grid.Row="2" Spacing="4" Visibility="Collapsed">
-  <Grid ColumnSpacing="12">
-   <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-    <ListBox x:Name="ViewPicker" SelectedIndex="0" SelectionChanged="ViewChanged" AutomationProperties.Name="View" BorderThickness="0">
+   <StackPanel x:Name="NavigationBar" Orientation="Horizontal" Spacing="12">
+    <ListBox x:Name="ViewPicker" SelectedIndex="0" SelectionChanged="ViewChanged" AutomationProperties.Name="View" BorderThickness="0" HorizontalAlignment="Left">
      <ListBox.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate></ListBox.ItemsPanel>
      <ListBoxItem Content="Library"/><ListBoxItem Content="Review"/><ListBoxItem Content="Repair log"/>
     </ListBox>
-   <TextBlock Grid.Column="1" Text="{Binding Summary}" TextTrimming="CharacterEllipsis" ToolTipService.ToolTip="{Binding Summary}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center"/>
-   <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
+    <TextBlock Text="{Binding Summary}" TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center"/>
+   </StackPanel>
+   <StackPanel x:Name="FilterBar" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Left">
     <TextBox x:Name="SearchBox" Width="220" PlaceholderText="Filter scanned files…" AutomationProperties.Name="Filter scanned results by filename or location" TextChanged="SearchChanged"/>
     <ComboBox x:Name="MediaFilter" SelectedIndex="0" SelectionChanged="FilterChanged" AutomationProperties.Name="File type">
      <ComboBoxItem Content="All files" Tag="All"/><ComboBoxItem Content="Photos" Tag="image"/><ComboBoxItem Content="Videos" Tag="video"/>
     </ComboBox>
-   </StackPanel>
-  </Grid>
     <ComboBox x:Name="ReviewFilter" HorizontalAlignment="Left" SelectedIndex="0" SelectionChanged="FilterChanged" AutomationProperties.Name="Review filter">
      <ComboBoxItem Content="All review items"/><ComboBoxItem Content="Missing Taken At"/><ComboBoxItem Content="Taken &gt; Created"/><ComboBoxItem Content="Taken &gt; Modified"/>
     </ComboBox>
+   </StackPanel>
   </StackPanel>
   <StackPanel x:Name="WelcomePanel" Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12" MaxWidth="380">
    <TextBlock x:Name="EmptyTitle" Text="Inspect your photo dates" FontSize="24" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap"/>
@@ -84,8 +83,8 @@
   </StackPanel>
   <Grid x:Name="TableRegion" Grid.Row="3" Visibility="Collapsed">
    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
-   <ScrollViewer x:Name="HeaderScroll" HorizontalScrollBarVisibility="Hidden" HorizontalScrollMode="Disabled" VerticalScrollBarVisibility="Disabled" VerticalScrollMode="Disabled">
-    <Grid x:Name="TableHeader" Width="{Binding TotalWidth, Source={StaticResource ColumnLayout}}">
+   <ScrollViewer x:Name="HeaderScroll" HorizontalContentAlignment="Left" HorizontalScrollBarVisibility="Hidden" HorizontalScrollMode="Disabled" VerticalScrollBarVisibility="Disabled" VerticalScrollMode="Disabled">
+    <Grid x:Name="TableHeader" HorizontalAlignment="Left" Width="{Binding TotalWidth, Source={StaticResource ColumnLayout}}">
      <Grid.ColumnDefinitions>
       <ColumnDefinition Width="{Binding Items[0].Width, Source={StaticResource ColumnLayout}}"/>
       <ColumnDefinition Width="{Binding Items[1].Width, Source={StaticResource ColumnLayout}}"/>
@@ -122,7 +121,7 @@
    ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollMode="Enabled">
    <ListView.ItemContainerStyle>
     <Style TargetType="ListViewItem">
-     <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+     <Setter Property="HorizontalContentAlignment" Value="Left"/>
      <Setter Property="Padding" Value="0"/>
      <Setter Property="MinHeight" Value="0"/>
      <Setter Property="UseSystemFocusVisuals" Value="True"/>
@@ -130,14 +129,14 @@
           This table supplies one checkbox bound to the shared selection model. -->
      <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ListViewItem">
       <ContentPresenter Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}"
-       HorizontalContentAlignment="Stretch"/>
+       HorizontalContentAlignment="Left"/>
      </ControlTemplate></Setter.Value></Setter>
     </Style>
    </ListView.ItemContainerStyle>
 
    <ListView.ItemTemplate>
     <DataTemplate x:DataType="presentation:MediaRow">
-     <Grid Width="{Binding TotalWidth, Source={StaticResource ColumnLayout}}" Tapped="RowTapped" KeyDown="RowKeyDown" Padding="0,2" Background="Transparent" ToolTipService.ToolTip="{Binding Record.Path}">
+     <Grid HorizontalAlignment="Left" Width="{Binding TotalWidth, Source={StaticResource ColumnLayout}}" Tapped="RowTapped" KeyDown="RowKeyDown" Padding="0,2" Background="Transparent" ToolTipService.ToolTip="{Binding Record.Path}">
       <Grid.Resources><Style TargetType="TextBlock"><Setter Property="VerticalAlignment" Value="Center"/><Setter Property="Margin" Value="0,0,8,0"/></Style></Grid.Resources>
       <Grid.ContextFlyout><MenuFlyout><MenuFlyoutItem Text="Open file" Click="OpenFile"/><MenuFlyoutItem Text="Show in Explorer" Click="RevealFile"/><MenuFlyoutItem Text="Copy full path" Click="CopyPath"/></MenuFlyout></Grid.ContextFlyout>
       <Grid.ColumnDefinitions>
@@ -171,12 +170,12 @@
   </Grid>
   <ScrollViewer x:Name="LogPanel" Grid.Row="3" Visibility="Collapsed"><TextBlock Text="{Binding Log}" IsTextSelectionEnabled="True" FontFamily="Consolas" TextWrapping="Wrap"/></ScrollViewer>
   <StackPanel x:Name="SelectionPanel" Grid.Row="4" Spacing="6" Visibility="Collapsed">
-   <StackPanel Orientation="Horizontal" Spacing="12">
+   <StackPanel x:Name="SelectionActions" Orientation="Horizontal" Spacing="12">
     <TextBlock Text="{Binding SelectionSummary}" VerticalAlignment="Center"/>
     <Button Content="Select all" Click="SelectAll"/>
     <Button Content="Clear selection" Click="ClearSelection"/>
    </StackPanel>
-   <StackPanel x:Name="RepairBar" Orientation="Horizontal" Spacing="12" Visibility="Collapsed">
+   <StackPanel x:Name="RepairBar" HorizontalAlignment="Left" Orientation="Horizontal" Spacing="12" Visibility="Collapsed">
     <ComboBox x:Name="RepairMethodPicker" DisplayMemberPath="Label" SelectionChanged="RepairMethodChanged" AutomationProperties.Name="Repair method"/>
     <CheckBox x:Name="BackupOriginals" Content="Backup originals" IsChecked="True" Click="BackupToggled"/>
     <Button Content="Review changes…" Click="ReviewChanges" IsEnabled="{Binding CanReviewChanges}"/>
