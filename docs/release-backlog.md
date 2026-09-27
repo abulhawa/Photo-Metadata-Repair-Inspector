@@ -77,7 +77,9 @@ status footer, severity-aware native notifications, usage help, privacy/support
 links and About with package version and approved artwork. Existing scan,
 selection and repair actions are reused.
 
-Release build passed without warnings; 30 Windows presentation tests passed.
-Launching the newly compiled direct executable was blocked by this laptop's
-Application Control policy. The earlier development instance remains running.
-Visual review of the new UI and genuine screenshots remain pending.
+Release build passed without warnings; 33 Windows presentation tests passed.
+Owner reviewed and accepted the revised UI in Windows Sandbox, including
+view-specific controls, review-column order and compact spacing. Discovery now
+reports live folder/media counts before metadata reading. Native host launch
+previously hit Application Control restrictions; security settings were retained.
+Genuine Store screenshots and packaged workflow checks remain pending.
