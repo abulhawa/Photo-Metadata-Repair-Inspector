@@ -3,7 +3,7 @@
  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
  IgnorableNamespaces="uap rescap">
-  <Identity Name="QortxAI.PhotoMetadataRepairInspector" Publisher="CN=7F9981DB-6481-4EE5-8747-A3A63C186D7D" Version="0.1.0.0" />
+  <Identity Name="QortxAI.PhotoMetadataRepairInspector" Publisher="CN=7F9981DB-6481-4EE5-8747-A3A63C186D7D" Version="1.0.0.0" />
   <Properties>
     <DisplayName>Photo Metadata Repair Inspector</DisplayName>
     <PublisherDisplayName>QortxAI</PublisherDisplayName>

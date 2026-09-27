@@ -24,11 +24,11 @@ jobs:
       - name: Windows adapters and presentation tests
         run: dotnet test windows-native/tests/PhotoRepair.Windows.Tests -c Release --no-build --logger trx
       - name: Build unsigned MSIX
-        run: dotnet build windows-native/src/PhotoRepair.App -c Release -p:Platform=x64 -p:GenerateAppxPackageOnBuild=true -p:AppxPackageSigningEnabled=false
+        run: ./scripts/build-store-package.ps1
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: native-windows-results
           path: |
             windows-native/**/TestResults/*.trx
-            windows-native/src/PhotoRepair.App/AppPackages/**
+            .artifacts/store-release/**

@@ -178,3 +178,11 @@ immediately before Apply, so those reads cannot invalidate the assertion.
 Remaining merge gates and Store preparation are tracked in
 [release-backlog.md](../docs/release-backlog.md). Manual packaged-app repair
 validation remains outstanding; this integration does not claim that check passed.
+
+## Store candidate preparation
+
+Candidate 1.0.0.0 has photo-and-clock package artwork and a repeatable unsigned
+MSIX builder: `scripts/build-store-package.ps1`. See
+[Store validation](../docs/store-validation.md), [listing draft](../docs/store-listing.md)
+and [privacy information](../docs/privacy.md). The build validates reserved identity
+and produces a hash report. It does not certify or install the candidate.
