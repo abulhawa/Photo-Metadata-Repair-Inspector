@@ -34,6 +34,30 @@ package remained at 0.1.0.0 after this check.
 - Oldest supported Windows version.
 - Microsoft Store certification (the local kit is a separate pre-submission check).
 
+## Owner-authorized laptop lifecycle test
+
+On 27 September 2026, the owner's Windows 11 laptop passed package registration
+checks for removal of the previous 0.1.0.0 package, installation of test-signed
+1.0.0.0, update to 1.0.1.0, uninstall, and reinstall of 1.0.0.0. External synthetic
+sentinel files retained their hashes after uninstall. These sentinels were not
+genuine repaired photos. This was an existing development profile, not a clean
+Windows installation. Evidence: `.artifacts/install-test/laptop-lifecycle-results.json`.
+The temporary publisher trust was removed after testing.
+
+Packaged launch failed with AppModel error 0x800711C7. Code Integrity events 3077
+and 3033 identified the installed PhotoRepair.App.exe as failing the Custom1
+signing level; Smart App Control was enabled. The executable was individually
+unsigned, despite the MSIX having a local test signature. No security policy
+was changed. Version 1.0.0.0 remains registered, but launch is blocked on this
+laptop. Lifecycle registration success and the local certification kit PASS
+must not be treated as a successful end-to-end app test.
+
+Use a Microsoft Store-signed test distribution or appropriately trusted code
+signing for the next laptop launch test. See Microsoft's
+[Smart App Control signing guidance](https://learn.microsoft.com/en-us/windows/apps/develop/smart-app-control/code-signing-for-smart-app-control).
+Actual screenshots, workflow verification, clean-machine checks and Store
+certification remain outstanding.
+
 Native desktop control is disabled in the current agent session, so actual app
 screenshots cannot be captured or inspected through the available browser tools.
 
