@@ -37,6 +37,10 @@ and real-photo checks. The table UI was owner-approved before integration.
 - [x] Build direct unsigned x64 MSIX and validate manifest/hash.
   Declared minimum is Windows 10 build 17763; actual oldest-OS testing remains pending.
 - [ ] Test clean-profile install, packaged launch, folder access, update and uninstall.
+  Owner-authorized laptop installation/update/uninstallation registration checks
+  passed, including external sentinel retention and reinstall. Packaged launch
+  is blocked by Smart App Control; this existing developer profile does not
+  replace clean-machine or actual workflow verification.
 - [x] Local Windows App Certification Kit: PASS for 1.0.0.0 on build 26200.
   Microsoft Store certification remains pending.
 - [ ] Prepare screenshots, description, features, category, age ratings, pricing,
