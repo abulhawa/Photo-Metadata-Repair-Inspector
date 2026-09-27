@@ -25,7 +25,7 @@
    <MenuFlyoutSeparator/><MenuFlyoutItem Text="About" Click="ShowAbout"/>
   </MenuBarItem>
  </MenuBar>
- <Grid x:Name="Root" Grid.Row="1" Padding="12" RowSpacing="10" SizeChanged="LayoutChanged" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+ <Grid x:Name="Root" Grid.Row="1" Padding="12,6,12,10" RowSpacing="6" SizeChanged="LayoutChanged" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
  <Grid.Resources>
   <local:TableColumns x:Key="ColumnLayout"/>
   <Style x:Key="ColumnDivider" TargetType="local:ColumnResizeGrip">
@@ -61,7 +61,14 @@
   </StackPanel>
   <StackPanel x:Name="ResultsControls" Grid.Row="2" Spacing="4" Visibility="Collapsed">
    <StackPanel x:Name="NavigationBar" Orientation="Horizontal" Spacing="12">
-    <ListBox x:Name="ViewPicker" SelectedIndex="0" SelectionChanged="ViewChanged" AutomationProperties.Name="View" BorderThickness="0" HorizontalAlignment="Left">
+    <ListBox x:Name="ViewPicker" SelectedIndex="0" SelectionChanged="ViewChanged" AutomationProperties.Name="View" BorderThickness="0" Padding="0" HorizontalAlignment="Left">
+     <ListBox.ItemContainerStyle>
+      <Style TargetType="ListBoxItem">
+       <Setter Property="MinHeight" Value="32"/>
+       <Setter Property="Padding" Value="12,4"/>
+       <Setter Property="Margin" Value="0"/>
+      </Style>
+     </ListBox.ItemContainerStyle>
      <ListBox.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate></ListBox.ItemsPanel>
      <ListBoxItem Content="Library"/><ListBoxItem Content="Review"/><ListBoxItem Content="Repair log"/>
     </ListBox>
