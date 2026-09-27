@@ -46,7 +46,7 @@
   <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
   <Grid ColumnSpacing="12">
    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-   <Button Content="Select folderâ€¦" Click="PickFolder" IsEnabled="{Binding CanSelectFolder}" VerticalAlignment="Center"/>
+   <Button Content="Select folder…" Click="PickFolder" IsEnabled="{Binding CanSelectFolder}" VerticalAlignment="Center"/>
    <StackPanel Grid.Column="1" VerticalAlignment="Center">
     <TextBlock Text="{Binding SelectedFolderDisplay}" TextTrimming="CharacterEllipsis" IsTextSelectionEnabled="True" ToolTipService.ToolTip="{Binding SelectedFolderDisplay}" AutomationProperties.Name="Selected folder"/>
    </StackPanel>
@@ -68,7 +68,7 @@
     </ListBox>
    <TextBlock Grid.Column="1" Text="{Binding Summary}" TextTrimming="CharacterEllipsis" ToolTipService.ToolTip="{Binding Summary}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center"/>
    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
-    <TextBox x:Name="SearchBox" Width="220" PlaceholderText="Filter scanned filesâ€¦" AutomationProperties.Name="Filter scanned results by filename or location" TextChanged="SearchChanged"/>
+    <TextBox x:Name="SearchBox" Width="220" PlaceholderText="Filter scanned files…" AutomationProperties.Name="Filter scanned results by filename or location" TextChanged="SearchChanged"/>
     <ComboBox x:Name="MediaFilter" SelectedIndex="0" SelectionChanged="FilterChanged" AutomationProperties.Name="File type">
      <ComboBoxItem Content="All files" Tag="All"/><ComboBoxItem Content="Photos" Tag="image"/><ComboBoxItem Content="Videos" Tag="video"/>
     </ComboBox>
@@ -179,7 +179,7 @@
    <StackPanel x:Name="RepairBar" Orientation="Horizontal" Spacing="12" Visibility="Collapsed">
     <ComboBox x:Name="RepairMethodPicker" DisplayMemberPath="Label" SelectionChanged="RepairMethodChanged" AutomationProperties.Name="Repair method"/>
     <CheckBox x:Name="BackupOriginals" Content="Backup originals" IsChecked="True" Click="BackupToggled"/>
-    <Button Content="Review changesâ€¦" Click="ReviewChanges" IsEnabled="{Binding CanReviewChanges}"/>
+    <Button Content="Review changes…" Click="ReviewChanges" IsEnabled="{Binding CanReviewChanges}"/>
    </StackPanel>
   </StackPanel>
  </Grid>

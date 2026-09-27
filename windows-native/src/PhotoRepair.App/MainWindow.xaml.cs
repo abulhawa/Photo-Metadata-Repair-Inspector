@@ -97,7 +97,7 @@ public sealed partial class MainWindow : Window
         {
             string column = heading.Tag.ToString()!;
             bool active = model.SortColumn == column;
-            heading.Content = column + (active ? model.Descending ? " â†“" : " â†‘" : "");
+            heading.Content = column + (active ? model.Descending ? " ↓" : " ↑" : "");
             string direction = active && !model.Descending ? "descending" : "ascending";
             ToolTipService.SetToolTip(heading, $"Sort by {column}, {direction}");
             Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(heading, $"Sort by {column}");
@@ -190,7 +190,7 @@ public sealed partial class MainWindow : Window
         {
             RepairPreview preview = model.BuildRepairPreview();
             string examples = string.Join("\n\n", preview.Examples.Select(item =>
-                $"{item.Name}\n{item.Method.Label}\n{item.Before}  â†’  {item.After}"));
+                $"{item.Name}\n{item.Method.Label}\n{item.Before}  →  {item.After}"));
             string text = $"Selected: {preview.SelectedCount}\nApplicable: {preview.ApplicableCount}\nSkipped: {preview.SkippedCount}";
             if (!preview.CreateBackup)
                 text += "\n\nWARNING: Backups are OFF. These changes will be made in place without a recovery copy created by this application.";

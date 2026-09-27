@@ -41,8 +41,8 @@ public sealed class InspectionViewModel(Action<Action> dispatch, MediaScanner? s
     public string SelectedFolderDisplay => SelectedFolder ?? "No folder selected";
     public bool IsChoosingFolder { get; private set; }
 
-    public string Summary => $"{Rows.Count} shown Â· {records.Count} media files Â· {records.Count(r => r.Issues.Count > 0)} to review";
-    public string SelectionSummary => $"{Selection.Selected.Count} selected Â· Backups {(CreateBackup ? "on" : "off")}";
+    public string Summary => $"{Rows.Count} shown · {records.Count} media files · {records.Count(r => r.Issues.Count > 0)} to review";
+    public string SelectionSummary => $"{Selection.Selected.Count} selected · Backups {(CreateBackup ? "on" : "off")}";
     public string Log { get; private set; } = "No folder loaded.";
     public bool IsScanning => cancellation is not null;
     public bool IsApplying => applying;
@@ -77,7 +77,7 @@ public sealed class InspectionViewModel(Action<Action> dispatch, MediaScanner? s
         int current = ++generation;
         IsDiscovering = true;
         StatusKind = "Information";
-        Status = $"Scanning {root}"; ProgressText = "Discovering filesâ€¦"; Completed = 0; Total = 1; Notify();
+        Status = $"Scanning {root}"; ProgressText = "Discovering files…"; Completed = 0; Total = 1; Notify();
         try
         {
             if (!Directory.Exists(root)) throw new DirectoryNotFoundException("The selected folder is no longer available.");
@@ -108,7 +108,7 @@ public sealed class InspectionViewModel(Action<Action> dispatch, MediaScanner? s
         finally { cancellation = null; IsDiscovering = false; Notify(); }
     }
 
-    public void Stop() { cancellation?.Cancel(); if (IsScanning) { Status = "Stopping scanâ€¦"; Notify(); } }
+    public void Stop() { cancellation?.Cancel(); if (IsScanning) { Status = "Stopping scan…"; Notify(); } }
 
     public void Refresh(bool clearSelection = true)
     {
@@ -173,7 +173,7 @@ public sealed class InspectionViewModel(Action<Action> dispatch, MediaScanner? s
         bool createBackup = preview.CreateBackup;
         applying = true;
         StatusKind = "Information";
-        Status = $"Applying {preview.ApplicableCount} repair{(preview.ApplicableCount == 1 ? "" : "s")}â€¦";
+        Status = $"Applying {preview.ApplicableCount} repair{(preview.ApplicableCount == 1 ? "" : "s")}…";
         Notify();
         try
         {
