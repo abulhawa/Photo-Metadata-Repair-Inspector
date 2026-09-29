@@ -155,6 +155,14 @@ public sealed partial class MainWindow : Window
                 active ? $"Sorted {(model.Descending ? "descending" : "ascending")}. Activate to sort {direction}." : $"Activate to sort {direction}.");
         }
     }
+    // Let the flyout finish handling the click and release focus before opening
+    // a modal picker or disabling its currently invoked menu item.
+    private void PickFolderFromMenu(object sender, RoutedEventArgs e) =>
+        DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low,
+            () => PickFolder(sender, e));
+    private void ScanFolderFromMenu(object sender, RoutedEventArgs e) =>
+        DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low,
+            () => ScanFolder(sender, e));
     private async void PickFolder(object sender, RoutedEventArgs e)
     {
         if (!model.CanSelectFolder) return;

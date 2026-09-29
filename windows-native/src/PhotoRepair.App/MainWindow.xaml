@@ -8,8 +8,8 @@
  <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
  <MenuBar>
   <MenuBarItem Title="File">
-   <MenuFlyoutItem Text="Select folder…" Click="PickFolder" x:Name="FolderMenu"/>
-   <MenuFlyoutItem x:Name="ScanMenu" Text="Scan folder" Click="ScanFolder"/>
+   <MenuFlyoutItem Text="Select folder…" Click="PickFolderFromMenu" x:Name="FolderMenu"/>
+   <MenuFlyoutItem x:Name="ScanMenu" Text="Scan folder" Click="ScanFolderFromMenu"/>
    <MenuFlyoutItem x:Name="StopMenu" Text="Stop scan" Click="StopScan"/>
    <MenuFlyoutSeparator/><MenuFlyoutItem Text="Exit" Click="ExitApp"/>
   </MenuBarItem>
