@@ -1,0 +1,124 @@
+name: Microsoft Store release
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: Build only, publish a release, check access, or check an existing submission
+        type: choice
+        options: [build, submit, preflight, status]
+        default: build
+      version:
+        description: New package version (for example 1.0.1.0; must exceed the Store version)
+        type: string
+        default: '1.0.1.0'
+      release_notes:
+        description: Public release notes (required for submit)
+        type: string
+      submission_id:
+        description: Existing submission ID (required for status)
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: microsoft-store-release
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: inputs.action == 'build' || inputs.action == 'submit'
+    runs-on: windows-latest
+    timeout-minutes: 30
+    env:
+      RELEASE_VERSION: ${{ inputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: astral-sh/setup-uv@v6
+      - name: Validate version and update build manifest
+        shell: pwsh
+        run: |
+          python -c "from scripts.store_submission import version_tuple; import os; version_tuple(os.environ['RELEASE_VERSION'])"
+          if ($LASTEXITCODE -ne 0) { throw 'Invalid release version' }
+          $path = 'windows-native/src/PhotoRepair.App/Package.appxmanifest'
+          [xml]$manifest = Get-Content -LiteralPath $path -Raw
+          if ([version]$env:RELEASE_VERSION -le [version]$manifest.Package.Identity.Version) {
+            throw 'Release version must exceed the checked-in version'
+          }
+          $manifest.Package.Identity.Version = $env:RELEASE_VERSION
+          $manifest.Save((Join-Path (Get-Location) $path))
+      - name: Offline Python tests
+        run: uv run --locked --group dev python -m pytest
+      - name: Build native solution
+        run: dotnet build windows-native/PhotoRepair.sln -c Release -p:Platform=x64
+      - name: Native tests
+        shell: pwsh
+        run: |
+          dotnet test windows-native/tests/PhotoRepair.Core.Tests -c Release --no-build --logger trx
+          if ($LASTEXITCODE -ne 0) { throw 'Core tests failed' }
+          dotnet test windows-native/tests/PhotoRepair.Windows.Tests -c Release --no-build --logger trx
+          if ($LASTEXITCODE -ne 0) { throw 'Windows tests failed' }
+      - name: Build Store MSIX and verify manifest
+        run: ./scripts/build-store-package.ps1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: store-package
+          path: .artifacts/store-release/**
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: store-test-results
+          path: windows-native/**/TestResults/*.trx
+
+  store:
+    needs: build
+    if: always() && (inputs.action == 'preflight' || inputs.action == 'status' || (inputs.action == 'submit' && needs.build.result == 'success'))
+    runs-on: windows-latest
+    timeout-minutes: 15
+    environment: microsoft-store
+    env:
+      STORE_TENANT_ID: ${{ secrets.STORE_TENANT_ID }}
+      STORE_CLIENT_ID: ${{ secrets.STORE_CLIENT_ID }}
+      STORE_CLIENT_SECRET: ${{ secrets.STORE_CLIENT_SECRET }}
+      STORE_RELEASE_NOTES: ${{ inputs.release_notes }}
+      RELEASE_VERSION: ${{ inputs.version }}
+      SUBMISSION_ID: ${{ inputs.submission_id }}
+      STORE_ACTION: ${{ inputs.action }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/download-artifact@v4
+        if: inputs.action == 'submit'
+        with:
+          name: store-package
+          path: .artifacts/store-release
+      - name: Submit or check Microsoft Store
+        shell: pwsh
+        run: |
+          if ($env:STORE_ACTION -eq 'submit') {
+            $packages = @(Get-ChildItem .artifacts/store-release -Recurse -Filter *.msix)
+            if ($packages.Count -ne 1) { throw 'Expected exactly one x64 MSIX' }
+            python scripts/store_submission.py submit --package $packages[0].FullName --version $env:RELEASE_VERSION
+          } elseif ($env:STORE_ACTION -eq 'status') {
+            python scripts/store_submission.py status --submission-id $env:SUBMISSION_ID
+          } else {
+            python scripts/store_submission.py preflight
+          }
+          if ($LASTEXITCODE -ne 0) { throw 'Store operation stopped; check the run summary and Partner Center before retrying' }
+      - name: Save submission ID for recovery and later status checks
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: store-submission-state
+          path: .artifacts/store-submission/state.json
+          if-no-files-found: ignore
