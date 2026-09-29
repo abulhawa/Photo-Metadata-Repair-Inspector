@@ -12,6 +12,10 @@ in GitHub. Certification still takes place in Microsoft Store.
    with the developer account. Sign in with the directory's administrator
    account to manage users/applications. The personal Microsoft account used
    to publish manually is not itself a service credential.
+   If no directory exists, follow Microsoft's
+   [create a tenant in Partner Center](https://learn.microsoft.com/en-us/windows/apps/publish/partner-center/create-new-azure-ad-tenant)
+   guide (**Tenants → Create Microsoft Entra ID**). Creation of the administrator
+   account/password and any consent prompts must be completed by the owner.
 2. Add an Entra application for this release workflow in Partner Center's
    **Users** management and assign it the **Manager** role required by the
    submission API. Copy the Tenant ID and Client ID. Create a client secret.

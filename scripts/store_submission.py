@@ -119,7 +119,7 @@ def submit(client, package, version, notes, state_path):
         raise ValueError("Partner Center app identity does not match the package.")
     if app.get("pendingApplicationSubmission"):
         raise ValueError("An existing submission is pending. Check its status; this workflow will not overwrite or delete it.")
-    published = app.get("lastPublishedApplicationSubmission", {}).get("id")
+    published = (app.get("lastPublishedApplicationSubmission") or {}).get("id")
     if not published:
         raise ValueError("No published submission. Finish the first release in Partner Center.")
     base = client.call("GET", f"/submissions/{published}")
