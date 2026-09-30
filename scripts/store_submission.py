@@ -125,6 +125,7 @@ def submit(client, package, version, notes, state_path):
     base = client.call("GET", f"/submissions/{published}")
     payload = updated_submission(base, package.name, version, notes)
     upload_path = state_path.parent / "store-upload.zip"
+    upload_path.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(upload_path, "w", zipfile.ZIP_DEFLATED) as archive:
         archive.write(package, package.name)
     created = client.call("POST", "/submissions")

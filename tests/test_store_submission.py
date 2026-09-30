@@ -122,7 +122,7 @@ def test_successful_release_uploads_zip_then_commits_once(tmp_path, monkeypatch)
         return {}
 
     monkeypatch.setattr(store, "request", upload)
-    state = tmp_path / "state.json"
+    state = tmp_path / "store-submission" / "state.json"
     assert store.submit(Client(), package, "1.0.1.0", "Notes", state) == "123"
     assert calls == [("GET", ""), ("GET", "/submissions/100"), ("POST", "/submissions"),
                      ("PUT", "/submissions/123"), ("PUT", "upload"), ("POST", "/submissions/123/commit")]
